@@ -1,4 +1,5 @@
 from typing import Any, List, Tuple
+
 class Graph:
 
   def __init__(self):
@@ -19,7 +20,7 @@ class Graph:
     except KeyError:
       self.adj[node] = {}
       self.num_nodes += 1
-
+      
   def add_nodes(self, nodes: List[Any]) -> None:
     """
     Adds a list of nodes to the graph
@@ -77,7 +78,11 @@ class Graph:
     Returns:
     True if there is an edge from u to v, False otherwise.
     """
-    pass
+    try:
+      self.adj[u][v]
+      return True
+    except KeyError:
+      return False
     
   def neighbors(self, node: Any) -> List[Any]:
     """
@@ -89,7 +94,7 @@ class Graph:
     Returns:
     A list of neighbor nodes connected to the specified node.
     """
-    pass
+    return list(self.adj[node].keys())
 
   def degree_out(self, node: Any) -> int:
     """
@@ -101,7 +106,7 @@ class Graph:
     Returns:
     The out-degree of the specified node.
     """
-    pass
+    return len(self.adj[node])
   
   def degree_in(self, node: Any) -> int:
     """
@@ -113,8 +118,12 @@ class Graph:
     Returns:
     The in-degree of the specified node.
     """
-    pass
- 
+    count = 0
+    for key in self.adj:
+      if node in self.adj[key]:
+        count += 1
+    return count  
+
   def highest_degree_in(self) -> int:
     """
     Return the highest in-degree in the graph.
@@ -122,8 +131,13 @@ class Graph:
     Returns:
     The highest in-degree in the graph.
     """
-    pass
-
+    highest = 0
+    for node in self.adj:
+      degree_in_node = self.degree_in(node)
+      if degree_in_node > highest:
+        highest = degree_in_node
+    return highest
+  
   def density(self) -> float:
     """
     Return the density of the graph.
@@ -131,7 +145,7 @@ class Graph:
     Returns:
     The density of the graph.
     """
-    pass
+    return self.num_edges / (self.num_nodes * (self.num_nodes - 1))
   
   def is_regular(self):
     """
@@ -140,8 +154,12 @@ class Graph:
     Returns:
     True if the graph is regular, False otherwise.
     """
-    pass
-
+    first_node = list(self.adj.keys())[0]
+    degree_first_node = self.adj[first_node]
+    for node in self.adj:
+      if len(self.adj[node]) != degree_first_node:
+        return False
+      
   def is_oriented(self):
     """
     Check if the graph is oriented.
@@ -149,7 +167,11 @@ class Graph:
     Returns:
     True if the graph is oriented, False otherwise.
     """
-    pass
+    for u in self.adj:
+      for v in self.adj[u]:
+        if not self.there_is_edge(v, u):
+          return False
+    return True
 
   def is_complete(self) -> bool:
     """
@@ -158,7 +180,8 @@ class Graph:
     Returns:
     True if the graph is complete, False otherwise.
     """
-    pass
+    return self.density() == 1
+    
 
   def is_subgraph_of(self, g2) -> bool:
     """
@@ -170,25 +193,41 @@ class Graph:
     Returns:
     True if the graph is a subgraph of g2, False otherwise.
     """
-    pass
+    if self.num_nodes > g2.num_nodes or self.num_edges > g2.num_edges:
+      return False
+    for u in self.adj:
+      for v in self.adj[u]:
+        if not g2.there_is_edge(u, v):
+          return False
+    return True
 
-  def strongest_connection(self) -> Tuple[Any, Any, float]:
+  def strongest_connection(self):
     """
     Return the edge having the highest weight in the graph.
 
     Returns:
     A tuple (u, v, weight) representing the strongest connection in the graph.
     """
-    pass
+    strongest = (None, None, float("-inf"))
+    for u in self.adj:
+      for v in self.adj[u]:
+        if self.adj[u][v] > strongest[2]:
+          strongest = (u, v, self.adj[u][v])
+    return strongest
    
-  def weakest_connection(self) -> Tuple[Any, Any, float]:
+  def weakest_connection(self):
     """
-    Return the weakest connection in the graph.
+    Return the edge having the weakest weight in the graph.
 
     Returns:
     A tuple (u, v, weight) representing the weakest connection in the graph.
     """
-    pass
+    weakest = (None, None, float("inf"))
+    for u in self.adj:
+      for v in self.adj[u]:
+        if self.adj[u][v] < weakest[2]:
+          weakest = (u, v, self.adj[u][v])
+    return weakest
 
   def normalize_weights(self) -> None:
     """
@@ -197,7 +236,14 @@ class Graph:
     This function normalizes the edge weights in the graph to a range between 0 and 1.
     If all weights are the same, a warning is printed.
     """
-    pass
+    highest_weight = self.strongest_connection()[2]
+    smallest_weight = self.weakest_connection()[2]
+    if highest_weight - smallest_weight == 0:
+      print("WARN:  all weights are the same")
+      return
+    for u in self.adj:
+      for v in self.adj[u]:
+        self.adj[u][v] = (self.adj[u][v] - smallest_weight) / (highest_weight - smallest_weight)
 
   def bfs(self, s: Any) -> List[Any]:
     """
