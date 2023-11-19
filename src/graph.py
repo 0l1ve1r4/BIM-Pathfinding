@@ -1,4 +1,5 @@
 from typing import Any, List, Tuple
+from collections import deque
 
 class Graph:
 
@@ -6,6 +7,8 @@ class Graph:
     self.num_nodes = 0
     self.num_edges = 0
     self.adj = {}
+    self.start = ""
+    self.end = ""
 
   def add_node(self, node: Any) -> None:
     """
@@ -60,6 +63,57 @@ class Graph:
     """
     self.add_directed_edge(u, v, weight)
     self.add_directed_edge(v, u, weight)
+    
+    
+  def add_bpm(self, graph_list):
+    for i in range(len(graph_list)):
+      for j in range(len(graph_list)):
+          if i != j and graph_list[i][2] != "black" and graph_list[j][2] != "black":
+              x1, y1, color1 = graph_list[i]
+              x2, y2, color2 = graph_list[j]
+
+              if graph_list[i][2] == "red":
+                self.start = graph_list[i]
+              if graph_list[i][2] == "green":
+                self.end = graph_list[i]
+
+              # Check if nodes are adjacent but not diagonal
+              if (abs(x1 - x2) <= 1 and abs(y1 - y2) <= 1) and not (abs(x1 - x2) == 1 and abs(y1 - y2) == 1):
+                  self.add_directed_edge(graph_list[i], graph_list[j], 1)
+          #else:
+              #self.add_node(graph_list[i]) # adiciona o nós pretos
+
+  def dijkstra(self, start, end):
+
+    distances = {node: float('infinity') for node in self.adj}
+    distances[start] = 0
+    visited = set()
+
+    # Predecessor dictionary to store the previous node in the shortest path
+    predecessors = {node: None for node in self.adj}
+
+    while len(visited) < len(self.adj):
+        # Select the node with the smallest distance that is not visited
+        current_node = min((node for node in self.adj if node not in visited), key=lambda x: distances[x])
+
+        visited.add(current_node)
+
+        for neighbor, weight in self.adj[current_node].items():
+            distance = distances[current_node] + weight
+
+            if distance < distances.get(neighbor, float('infinity')):
+                distances[neighbor] = distance
+                predecessors[neighbor] = current_node
+
+    path = []
+    current_node = end
+    while current_node is not None:
+        path.insert(0, current_node)
+        current_node = predecessors[current_node]
+
+    return path
+
+
 
   def __repr__(self) -> str:
     str = ""
@@ -245,16 +299,6 @@ class Graph:
       for v in self.adj[u]:
         self.adj[u][v] = (self.adj[u][v] - smallest_weight) / (highest_weight - smallest_weight)
 
-  def bfs(self, s: Any) -> List[Any]:
-    """
-    Perform Breadth-First Search (BFS) starting from the specified source node.
-
-    Parameters:
-    - s: The source node for the BFS traversal.
-
-    This function explores the graph in breadth-first order starting from the given source node 's'.
-    """
-    pass
 
   def dfs(self, s: Any) -> List[Any]:
     """
