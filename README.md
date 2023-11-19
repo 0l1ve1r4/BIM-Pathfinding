@@ -6,8 +6,8 @@ The tool is implemented in Python and utilizes the tkinter library for the graph
 
 The primary functionality includes creating and visualizing a matrix-based representation of a building layout, modifying the layout by designating specific colors to represent different elements, and finding the shortest path between a designated start and end point.
 
-- <img align="left" src="images/examples/matrix.png" width="500">
-- <img align="right" src="images/examples/final_output.png" width="500">
+- <img align="right" src="images/examples/matrix.png" width="350">
+- <img align="right" src="images/examples/final_output.png" width="350">
 
 
 ## Features
