@@ -14,5 +14,5 @@ Este projeto aborda o conceito por trás desses sistemas, utilizando algoritmos 
 ### Exemplo 
 
 <img align="left" src="images/examples/matrix.png" width="350">
-<img align="right" src="images/examples/final_output.jpg" width="350">
+<img align="right" src="images/examples/final_output.png" width="350">
 
