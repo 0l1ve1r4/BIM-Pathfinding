@@ -76,12 +76,12 @@ class Graph:
 
     """
     
-    shortest_path = self.dijkstra(self.start_node, self.end_node)   
+    shortest_path = self.dijkstra(self.start, self.end)   
     for i in range(len(shortest_path)):
         x = shortest_path[i][0]
         y = shortest_path[i][1]
         if shortest_path[i][2] != 'red' and shortest_path[i][2] != 'green':
-            matrix[y][x] = 9
+            matrix[y][x] = 3
     
     return matrix
             
