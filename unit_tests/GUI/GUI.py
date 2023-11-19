@@ -21,7 +21,7 @@ class MatrixGUI:
         self.canvas.bind("<Button-1>", self.update_square_color)
         
         # Add a "Get Matrix" button
-        get_matrix_button = tk.Button(self.root, text="Get Matrix", command=self.get_matrix)
+        get_matrix_button = tk.Button(self.root, text="Get Path", command=self.get_matrix)
         get_matrix_button.grid(row=self.rows + 1, column=self.cols + 1, padx=5, pady=5)
 
     def create_color_widgets(self):

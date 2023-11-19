@@ -1,5 +1,6 @@
 import tkinter as tk
 from Init_Graph import *
+import os 
 
 class MatrixGUI:
     def __init__(self, root, new_matrix=None):
@@ -95,6 +96,16 @@ class MatrixGUI:
         self.draw_matrix()
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = MatrixGUI(root)
-    root.mainloop()
+    try:
+        print("\033[H\033[J")
+        root = tk.Tk()
+        app = MatrixGUI(root)
+        root.mainloop()
+        
+    except Exception as e:
+        os.system("pip install tk")
+        root = tk.Tk()
+        app = MatrixGUI(root)
+        root.mainloop()
+
+        
