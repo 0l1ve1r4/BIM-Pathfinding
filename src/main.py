@@ -92,6 +92,11 @@ class MatrixGUI:
         self.draw_matrix()
 
     def get_matrix(self): # This is the function that calls the Init_Graph.py and will use graphs to find the shortest path
+        print("\033[H\033[J")
+        for row in self.matrix:
+            print(row)
+        
+        self.draw_matrix()
         self.matrix = self.e.return_matrix(self.matrix)
         self.draw_matrix()
 

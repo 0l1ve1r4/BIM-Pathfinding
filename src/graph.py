@@ -133,6 +133,10 @@ class Graph:
     while current_node is not None:
         path.insert(0, current_node)
         current_node = predecessors[current_node]
+        
+    if path[-1] != start:
+        print("No path found")
+        return []
 
     return path
 
