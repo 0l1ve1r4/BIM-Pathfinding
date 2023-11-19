@@ -134,7 +134,7 @@ class Graph:
         path.insert(0, current_node)
         current_node = predecessors[current_node]
         
-    if path[-1] != start:
+    if path[-1] != end and path[0] != start:
         print("No path found")
         return []
 
