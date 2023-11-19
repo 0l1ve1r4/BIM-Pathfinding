@@ -13,8 +13,9 @@ class Init_Graph:
             
         matrix_to_bmp(matrix, self.image_path) # optional, u can use a image and converts to a matrix or list of lists, like the function under  
         graph_list = (rgb_image_to_list(self.image_path))
+        self.g.adj.clear()
         self.g.add_bpm(graph_list)    
-        matrix_to_bmp(self.g.find_short_path_bpm(matrix), self.final_image_path)
         matrix = self.g.find_short_path_bpm(matrix)
+        matrix_to_bmp(matrix, self.final_image_path)
         return matrix
     
