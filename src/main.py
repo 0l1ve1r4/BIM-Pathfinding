@@ -34,6 +34,7 @@ class MatrixGUI:
         self.draw_matrix()
 
         self.canvas.bind("<Button-1>", self.update_square_color)
+        self.canvas.bind("<Button-3>", self.delete_square)
 
         get_matrix_button = tk.Button(self.root, text="Get Matrix", command=self.get_matrix, bg="#4caf50", fg="white", font=("Helvetica", 12), padx=10, pady=5)
         get_matrix_button.grid(row=self.rows + 1, column=self.cols + 1, padx=10, pady=10)
@@ -63,6 +64,15 @@ class MatrixGUI:
             current_color = self.matrix[row_index][col_index]
             new_color = (current_color + 1) % len(["white", "black", "red", "green"])
             self.matrix[row_index][col_index] = new_color
+            self.draw_matrix()
+    
+    def delete_square(self, event):
+        x, y = event.x, event.y
+        col_index = x // 30
+        row_index = y // 30
+
+        if 0 <= row_index < self.rows and 0 <= col_index < self.cols:
+            self.matrix[row_index][col_index] = 0
             self.draw_matrix()
 
     def draw_matrix(self):
@@ -112,5 +122,3 @@ if __name__ == "__main__":
         root = tk.Tk()
         app = MatrixGUI(root)
         root.mainloop()
-
-        
