@@ -65,7 +65,29 @@ class Graph:
     self.add_directed_edge(v, u, weight)
     
     
+  def find_short_path_bpm(self,matrix) -> list:
+    """
+    Using dijkstra algorithm, find the shortest path in the Graph class.
+    
+    the last red bit is the start, and the last green bit is the end.
+
+    Returns:
+    - the nodes path start to end
+
+    """
+    
+    shortest_path = self.dijkstra(self.start_node, self.end_node)   
+    for i in range(len(shortest_path)):
+        x = shortest_path[i][0]
+        y = shortest_path[i][1]
+        if shortest_path[i][2] != 'red' and shortest_path[i][2] != 'green':
+            matrix[y][x] = 9
+    
+    return matrix
+            
+    
   def add_bpm(self, graph_list):
+    """Receives a list of tuples (x, y, color) and adds the nodes and edges to the graph."""
     for i in range(len(graph_list)):
       for j in range(len(graph_list)):
           if i != j and graph_list[i][2] != "black" and graph_list[j][2] != "black":
@@ -84,6 +106,7 @@ class Graph:
               #self.add_node(graph_list[i]) # adiciona o nós pretos
 
   def dijkstra(self, start, end):
+    """Dijkstra algorithm implementation."""
 
     distances = {node: float('infinity') for node in self.adj}
     distances[start] = 0
@@ -298,73 +321,3 @@ class Graph:
     for u in self.adj:
       for v in self.adj[u]:
         self.adj[u][v] = (self.adj[u][v] - smallest_weight) / (highest_weight - smallest_weight)
-
-
-  def dfs(self, s: Any) -> List[Any]:
-    """
-    Perform Depth-First Search (DFS) starting from the specified source node.
-
-    Parameters:
-    - s: The source node for the DFS traversal.
-
-    This function explores the graph in depth-first order starting from the given source node 's'.
-    """
-    pass
-
-  def dfs_rec(self, s: Any) -> List[Any]:
-    """
-    Perform Recursive Depth-First Search (DFS) starting from the specified source node.
-
-    Parameters:
-    - s: The source node for the recursive DFS traversal.
-
-    This function uses recursion to explore the graph in depth-first order starting from the given source node 's'.
-    """
-    pass
-
-  def node_with_highest_degree_in(self) -> Any:    
-    """
-    Find and return the node with the highest in-degree in the graph.
-
-    Returns:
-    The node with the highest in-degree in the graph.
-    """
-    pass
-
-  def node_with_highest_degree_out(self) -> Any:    
-    """
-    Find and return the node with the highest out-degree in the graph.
-
-    Returns:
-    The node with the highest out-degree in the graph.
-    """
-    pass
-
-  def remove_node(self, node: Any) -> None:    
-    """
-    Remove the specified node from the graph.
-
-    Parameters:
-    - node: The node to be removed from the graph.
-    """
-    pass
-
-  def remove_directed_edge(self, u: Any, v: Any) -> None:    
-    """
-    Remove the directed edge from node 'u' to node 'v' in the graph.
-
-    Parameters:
-    - u: The source node.
-    - v: The target node.
-    """
-    pass
-
-  def remove_undirected_edge(self, u: Any, v: Any) -> None:    
-    """
-    Remove the undirected edge between nodes 'u' and 'v' in the graph.
-
-    Parameters:
-    - u: One of the nodes.
-    - v: The other node.
-    """
-    pass
