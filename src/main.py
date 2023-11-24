@@ -45,7 +45,7 @@ class MatrixGUI:
         self.canvas.bind("<Button-1>", self.update_square_color)
         self.canvas.bind("<Button-3>", self.delete_square)
 
-        get_matrix_button = tk.Button(self.root, text="Get Matrix", command=self.get_matrix, bg="#4caf50", fg="white", font=("Helvetica", 12), padx=10, pady=5)
+        get_matrix_button = tk.Button(self.root, text="Get Path", command=self.get_matrix, bg="#4caf50", fg="white", font=("Helvetica", 12), padx=10, pady=5)
         get_matrix_button.grid(row=self.rows + 1, column=self.cols + 1, padx=10, pady=10)
         
         input_image_button = tk.Button(self.root, text="Input Image", command=self.open_file_explorer, bg="#4caf50", fg="white", font=("Helvetica", 12), padx=10, pady=5)
@@ -54,8 +54,6 @@ class MatrixGUI:
         del_path_button = tk.Button(self.root, text="Delete Path", command=self.del_path, bg="#f44336", fg="white", font=("Helvetica", 12), padx=10, pady=5)
         del_path_button.grid(row=self.rows + 2, column=self.cols + 1, padx=10, pady=10)
 
-        text = tk.Label(self.root, text="Red: Start\nGreen: End\n", font=("Helvetica", 12), padx=10, pady=10)
-        text.grid(row=self.rows + 3, column=self.cols + 1)
     
     def open_file_explorer(self):
         file_path = filedialog.askopenfilename()
