@@ -104,6 +104,7 @@ class Graph:
                   self.add_directed_edge(graph_list[i], graph_list[j], 1)
           #else:
               #self.add_node(graph_list[i]) # adiciona o nós pretos
+              
 
   def dijkstra(self, start, end):
     """Dijkstra algorithm implementation."""
