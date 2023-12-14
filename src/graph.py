@@ -65,9 +65,9 @@ class Graph:
     self.add_directed_edge(v, u, weight)
     
     
-  def find_short_path_bpm(self,matrix) -> list:
+  def find_short_path_bpm(self,matrix, dijkstra=False) -> list:
     """
-    Using dijkstra algorithm, find the shortest path in the Graph class.
+    Using dijkstra algorithm or bfs, find the shortest path in the Graph class.
     
     the last red bit is the start, and the last green bit is the end.
 
@@ -76,7 +76,10 @@ class Graph:
 
     """
     
-    shortest_path = self.dijkstra(self.start, self.end)   
+    if dijkstra:
+      shortest_path = self.dijkstra(self.start, self.end)   
+    else:
+      shortest_path = self.bfs(self.start, self.end)
     for i in range(len(shortest_path)):
         x = shortest_path[i][0]
         y = shortest_path[i][1]
@@ -105,13 +108,16 @@ class Graph:
           #else:
               #self.add_node(graph_list[i]) # adiciona o nós pretos
               
-
   def dijkstra(self, start, end):
     """Dijkstra algorithm implementation."""
 
     distances = {node: float('infinity') for node in self.adj}
     distances[start] = 0
     visited = set()
+    
+    print("Dijkstra algorithm running, start: ", start, " end: ", end)
+    print("Adjacency list: ", self.adj)
+    input("Press enter to continue...")
 
     # Predecessor dictionary to store the previous node in the shortest path
     predecessors = {node: None for node in self.adj}
@@ -138,10 +144,40 @@ class Graph:
     if path[-1] != end and path[0] != start:
         print("No path found")
         return []
+      
+    
 
     return path
 
+  def bfs(self, start, end):
+    """Breadth-First Search implementation."""
+    
+    queue = deque([start])
+    visited = set([start])
 
+    # Predecessor dictionary to store the previous node in the shortest path
+    predecessors = {node: None for node in self.adj}
+
+    while queue:
+        current_node = queue.popleft()
+
+        for neighbor, weight in self.adj[current_node].items():
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+                predecessors[neighbor] = current_node
+
+    path = []
+    current_node = end
+    while current_node is not None:
+        path.insert(0, current_node)
+        current_node = predecessors[current_node]
+
+    if path[-1] != end and path[0] != start:
+        print("No path found")
+        return []
+
+    return path
 
   def __repr__(self) -> str:
     str = ""
