@@ -17,5 +17,5 @@ if __name__ == "__main__":
     matrix_path = "./datasets/toyLaydown/toy_0.bmp" # default image
 
     root = tk.Tk()
-    app = MatrixGUI(root, matrix_path, SQUARE_SIZE=15)
+    app = MatrixGUI(root, matrix_path, SQUARE_SIZE=30)
     root.mainloop()

@@ -1,1 +1,4 @@
 tkinter
+PIL
+typing
+collections

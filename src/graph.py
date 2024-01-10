@@ -125,10 +125,10 @@ class Graph:
                         if color1 == "white" or color2 == "white":
                             weight = 1
                         
-                        elif color1 == "light_gray" or color2 == "light_gray":
+                        elif color1 == "lightgray" or color2 == "lightgray":
                             weight = 1.5
 
-                        elif color1 == "dark_gray" or color2 == "dark_gray":
+                        elif color1 == "darkgray" or color2 == "darkgray":
                             weight = 2
 
                         self.add_directed_edge(node1, node2, weight)

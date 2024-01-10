@@ -1,7 +1,14 @@
 from PIL import Image
-import matplotlib.pyplot as plt
+
+#
+# Some useful functions
+# to convert a matrix to a bmp image and vice versa
+#
+#
+#
 
 def matrix_to_bmp(matrix: list, image_path: str, gradient) -> None:
+    """Save a matrix as a bmp image"""
 
     if gradient:
 
@@ -20,8 +27,8 @@ def matrix_to_bmp(matrix: list, image_path: str, gradient) -> None:
             if current_color == 0:  # White
                 if 1 in neighbor_colors:  # Sided by black
                     matrix[x][y] = 4  # Dark grey
-                elif 4 in neighbor_colors:  # Sided by dark grey
-                    matrix[x][y] = 5  # Light grey
+                elif 4 in neighbor_colors:  # Sided by darkgrey
+                    matrix[x][y] = 5  # Lightgrey
 
         for i in range(len(matrix)):
             for j in range(len(matrix[0])):
@@ -45,9 +52,9 @@ def matrix_to_bmp(matrix: list, image_path: str, gradient) -> None:
     img.save(image_path)
 
 
-def rgb_image_to_list(image_path: str) -> list:
+def rgb_image_to_list(image_path: str) -> list[tuple[int, int, str]]:
     """
-    Recieved a bpm image, convert its to a list/matrix
+    Recieved a bpm image, convert its to a categorized list of tuples (x,y,color)
     """
     img = Image.open(image_path)
     width, height = img.size
@@ -67,9 +74,9 @@ def rgb_image_to_list(image_path: str) -> list:
             elif r == 255 and g == 0 and b == 0:    
                 color = "red"
             elif r == 128 and g == 128 and b == 128:
-                color = "dark_gray"
+                color = "darkgray"
             elif r == 196 and g == 196 and b == 196:
-                color = "light_gray"
+                color = "lightgray"
             elif r == 255 and g == 255 and b == 0:
                 color = "yellow"
             else:
