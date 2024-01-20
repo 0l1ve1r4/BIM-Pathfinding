@@ -1,14 +1,20 @@
 from typing import Any, List, Tuple
 from collections import deque
+import json
 
 class Graph:
 
-  def __init__(self) -> None:
+  def __init__(self, config_file="./src/config.json") -> None:
     self.num_nodes = 0
     self.num_edges = 0
     self.adj = {}
     self.start = ""
     self.end = []
+
+    if config_file != None:
+              with open(config_file, 'r') as f:
+                  self.config_data = json.load(f)
+
 
   def add_node(self, node: Any) -> None:
     """
@@ -126,10 +132,10 @@ class Graph:
                             weight = 1
                         
                         elif color1 == "lightgray" or color2 == "lightgray":
-                            weight = 1.5
+                            weight = self.config_data["graph_config"]["lightgray_weight"]
 
                         elif color1 == "darkgray" or color2 == "darkgray":
-                            weight = 2
+                            weight = self.config_data["graph_config"]["darkgray_weight"]
 
                         self.add_directed_edge(node1, node2, weight)
 

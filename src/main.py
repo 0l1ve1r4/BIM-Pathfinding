@@ -14,7 +14,7 @@ if __name__ == "__main__":
     
     print("\033[H\033[J")
     print(f"Running on {os.system('pwd')}")
-    matrix_path = "./datasets/toyFloors/toy_0.bmp" # default image
+    matrix_path = "./Datasets/toyFloors/toy_0.bmp" # default image
 
     root = tk.Tk()
     app = MatrixGUI(root, matrix_path)

@@ -10,10 +10,15 @@ import tkinter as tk
 import json
 
 from tkinter import filedialog, messagebox
-from Init_Graph import *
-from ExplanationGUI import *
+from bitmap import *
+from utilsGUI import *
 
 class MatrixGUI:
+
+    # ==============================================================================
+    # Constructor
+    # ==============================================================================
+
     def __init__(self, root, matrix=None, config_file="./src/config.json"):
         self.root = root
 
@@ -27,21 +32,24 @@ class MatrixGUI:
         self.root.title(config_data["config"]["title"])
         self.gradient = config_data["config"]["gradient"]
 
-
-
         self.floor_canvases = []  # Store canvases for each floor
         self.all_matrix = []  # Store all matrixes for each floor
 
-        self.intermediate_class = Init_Graph()
+        self.intermediate_class = Bitmap()
         self.matrix = self.intermediate_class.return_matrix_of_image(matrix) if matrix else config_data["matrix"]
         self.all_matrix.append(self.matrix)
         self.rows, self.cols = len(self.matrix), len(self.matrix[0])
         self.row_colors = [tk.StringVar(value="white") for _ in range(self.rows)]
         self.last_col_index = self.cols
         self.collum_update = 0
+        self.floor_warnings = 0
 
         self.setup_canvas()
         self.setup_commands()
+
+    # ==============================================================================
+    # Setups and Commands
+    # ==============================================================================
 
     def setup_canvas(self):
         self.canvas = tk.Canvas(self.root, width=self.SQUARE_SIZE * self.cols, height=self.SQUARE_SIZE * self.rows,
@@ -90,8 +98,27 @@ class MatrixGUI:
         self.explanation_button.grid(row=self.rows + 3, column=middle_column + 4, padx=10, pady=10)
         self.new_floor_button.grid(row=self.rows + 3, column=middle_column + 5, padx=10, pady=10)
 
+    def destroy_buttons(self):
+        self.get_path_button.destroy()
+        self.input_image_button.destroy()
+        self.clear_matrix_button.destroy()
+        self.gradient_button.destroy()
+        self.explanation_button.destroy()
+        self.new_floor_button.destroy()
 
+    def update_buttons_position(self):
+        middle_column = (self.last_col_index + 1) // 2 if self.last_col_index > 0 else 0
 
+        self.get_path_button.grid(row=self.rows + 3, column=middle_column, padx=10, pady=10)
+        self.input_image_button.grid(row=self.rows + 4, column=middle_column, padx=10, pady=10)
+        self.clear_matrix_button.grid(row=self.rows + 3, column=middle_column + 2, padx=10, pady=10)
+        self.gradient_button.grid(row=self.rows + 4, column=middle_column + 2, padx=10, pady=10)
+        self.explanation_button.grid(row=self.rows + 3, column=middle_column + 3, padx=10, pady=10)
+        self.new_floor_button.grid(row=self.rows + 4, column=middle_column + 3, padx=10, pady=10)
+    
+    # ==============================================================================
+    # Buttons Functions
+    # ==============================================================================
 
     def add_new_floor(self) -> None:
         floor_path = self.open_file_explorer(floor=True)
@@ -121,28 +148,11 @@ class MatrixGUI:
             print("Matrix: ", i+1)
             for j in range(len(self.all_matrix[i])):
                 print(self.all_matrix[i][j])
+        
+        if self.floor_warnings == 0:
+            self.floor_warnings += 1
+            new_floor_warning()
             
-
-    
-    def destroy_buttons(self):
-        self.get_path_button.destroy()
-        self.input_image_button.destroy()
-        self.clear_matrix_button.destroy()
-        self.gradient_button.destroy()
-        self.explanation_button.destroy()
-        self.new_floor_button.destroy()
-
-    def update_buttons_position(self):
-        middle_column = (self.last_col_index + 1) // 2 if self.last_col_index > 0 else 0
-
-        self.get_path_button.grid(row=self.rows + 3, column=middle_column, padx=10, pady=10)
-        self.input_image_button.grid(row=self.rows + 4, column=middle_column, padx=10, pady=10)
-        self.clear_matrix_button.grid(row=self.rows + 3, column=middle_column + 2, padx=10, pady=10)
-        self.gradient_button.grid(row=self.rows + 4, column=middle_column + 2, padx=10, pady=10)
-        self.explanation_button.grid(row=self.rows + 3, column=middle_column + 3, padx=10, pady=10)
-        self.new_floor_button.grid(row=self.rows + 4, column=middle_column + 3, padx=10, pady=10)
-
-
 
     def toggle_gradient(self) -> None:
         self.gradient = not self.gradient
@@ -156,7 +166,7 @@ class MatrixGUI:
         if file_path and not floor:
             self.root.destroy()
             root = tk.Tk()
-            app = MatrixGUI(root, file_path, SQUARE_SIZE=self.SQUARE_SIZE)
+            app = MatrixGUI(root, file_path)
             root.mainloop()
         return file_path
 
@@ -186,6 +196,21 @@ class MatrixGUI:
         if 0 <= row_index < self.rows and 0 <= col_index < self.cols:
             self.matrix[row_index][col_index] = 0
             self.draw_matrix(update_speed=0)
+
+    def del_path(self) -> None:
+        for i in range(len(self.matrix)):
+            for j in range(len(self.matrix[0])):
+                if self.matrix[i][j] >= 0:
+                    self.matrix[i][j] = 0
+        self.draw_matrix(update_speed=1)
+
+    def get_matrix(self) -> None:
+        self.matrix = self.intermediate_class.return_matrix(self.matrix, self.gradient)
+        self.draw_matrix(update_speed=2)
+
+    # ==============================================================================
+    # Main Rendering Function
+    # ==============================================================================
 
     def draw_matrix(self, floor_index=None, matrix=None, update_speed=5) -> None:
         colors = self.colors
@@ -243,14 +268,3 @@ class MatrixGUI:
                 self.root.update_idletasks()
                 self.root.grid_rowconfigure(0, weight=1)
                 self.root.grid_columnconfigure(0, weight=1)
-
-    def del_path(self) -> None:
-        for i in range(len(self.matrix)):
-            for j in range(len(self.matrix[0])):
-                if self.matrix[i][j] >= 0:
-                    self.matrix[i][j] = 0
-        self.draw_matrix(update_speed=1)
-
-    def get_matrix(self) -> None:
-        self.matrix = self.intermediate_class.return_matrix(self.matrix, self.gradient)
-        self.draw_matrix(update_speed=2)
