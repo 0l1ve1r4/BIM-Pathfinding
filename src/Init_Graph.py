@@ -15,7 +15,7 @@ class Init_Graph:
         #   Constructor
         #   Initialize the graph and the image paths
         #
-        self.g = Graph()
+        self.graph = Graph()
         self.image_path = "images/matrix.bmp"
         self.final_image_path = "images/output.bmp"
             
@@ -26,11 +26,11 @@ class Init_Graph:
         graph_list = (rgb_image_to_list(self.image_path)) # graph_list is a list of tuples (x,y,color)
         
         #clear the graph nodes and edges
-        self.g.adj.clear()
+        self.graph.adj.clear()
         
         #add the nodes and edges from the graph_list
-        self.g.add_nodes_and_edges_from_list(graph_list)    
-        matrix = self.g.find_short_path_bpm(matrix)
+        self.graph.add_nodes_and_edges_from_list(graph_list)    
+        matrix = self.graph.find_short_path_bpm(matrix)
         matrix_to_bmp(matrix, self.final_image_path, gradient)
         return matrix
     
@@ -40,6 +40,11 @@ class Init_Graph:
         graph_list = (rgb_image_to_list(image_path))
         
         return tuples_to_matrix(graph_list)
+    
+
+    def add_floor(self, matrix:list) -> list:
+        """Given a matrix, add a floor to it"""
+        print("Test")
 
 
 def tuples_to_matrix(dataset):

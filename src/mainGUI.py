@@ -2,27 +2,6 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 from Init_Graph import *
 from ExplanationGUI import *
-#
-#
-# This class is responsible for the GUI of the program.
-# The main GUI is a grid of squares, each square representing a node in the graph.
-#  - Left click on a square to change its color
-#  - Right click on a square to delete it
-#  - Click "Get Path" to find the shortest path between the start and end nodes
-#  - Click "Delete Path" to delete the shortest path
-#  - Click "Input Image" to input a image and convert it to a matrix
-#  - Click "Gradient" to toggle gradient mode where the path is colored based on the weight of the edges (white -> black -> dark gray -> light gray -> yellow)
-#  
-#  - The colors are:
-#    - [0] White: Empty square 
-#    - [1] Black: Wall 
-#    - [2] Red: Start node 
-#    - [3] Green: End node(s) 
-#    - [4] darkgray: Bad path (weight = 2))
-#    - [5] light_gray: Good path (weight = 1.5)
-#    - [6] Yellow: Shortest path output (weight = 1) 
-#
-#
 
 class MatrixGUI:
     
@@ -43,7 +22,7 @@ class MatrixGUI:
         # Initialize the matrix: 
         #
         self.intermediate_class = Init_Graph()
-        self.matrix = self.intermediate_class.return_matrix_of_image(matrix) if matrix else [[0] * 10 for _ in range(10)]
+        self.matrix = self.intermediate_class.return_matrix_of_image(matrix) if matrix else [[0] * 15 for _ in range(10)]
         self.rows, self.cols = len(self.matrix), len(self.matrix[0])
         self.row_colors = [tk.StringVar(value="white") for _ in range(self.rows)]
 
@@ -67,11 +46,24 @@ class MatrixGUI:
         self.gradient_button = tk.Button(self.root,text="Gradient ON",command=self.toggle_gradient,bg="#4caf50" if self.gradient else "#f44336",fg="white",font=("Helvetica", 12),padx=10,pady=5)
         self.gradient_button.grid(row=self.rows + 2, column=self.cols + 2, padx=10, pady=10)
         tk.Button(self.root, text="Explanation", command=open_explanation_window, bg="#4caf50", fg="white", font=("Helvetica", 12), padx=10, pady=5).grid(row=self.rows + 3, column=self.cols + 1, padx=10, pady=10)
+        tk.Button(self.root, text="Add new Floor", command=self.add_new_floor, bg="#4caf50", fg="white", font=("Helvetica", 12), padx=10, pady=5).grid(row=self.rows + 3, column=self.cols + 2, padx=10, pady=10)
+
     #
     #
     # Some useful functions:
     #
     #
+
+    def add_new_floor(self) -> None:
+        """Add a new floor to the Graph"""
+
+        floor_path = self.open_file_explorer(floor=True)
+        matrix_floor = self.intermediate_class.return_matrix_of_image(floor_path)
+        self.intermediate_class.add_floor(floor_path)
+        self.matrix.extend(matrix_floor)
+
+        self.rows, self.cols = len(self.matrix), len(self.matrix[0])
+        self.draw_matrix(update_speed=0)
 
     def toggle_gradient(self) -> None:
         """Change the self.gradient flag and update the gradient button accordingly."""
@@ -81,15 +73,16 @@ class MatrixGUI:
         self.gradient_button.config(text="Gradient ON" if self.gradient else "Gradient OFF")
 
 
-    def open_file_explorer(self) -> str:
+    def open_file_explorer(self, floor = False) -> str:
         """Open a file explorer window to select a image file."""
         file_path = filedialog.askopenfilename()
         print(f'File path: {file_path}')
-        if file_path:
+        if file_path and not floor:
             self.root.destroy()  # Close the current window
             root = tk.Tk()
             app = MatrixGUI(root, file_path, SQUARE_SIZE=self.SQUARE_SIZE)
             root.mainloop()
+
         return file_path
 
     def update_row_color(self, row_index:int) -> None:
