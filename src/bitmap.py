@@ -16,28 +16,46 @@ class Bitmap:
         #   Initialize the graph and the image paths
         #
         self.graph = Graph()
-        self.image_path = "images/matrix.bmp"
-        self.final_image_path = "images/output.bmp"
             
-    def return_matrix(self, matrix:list, gradient:bool) -> list:
+    def return_matrix(self, matrix_list:list, gradient:bool) -> list:
         """Given a matrix, find the shortest path in the Graph class."""
+        
+        graph_list = [] # list of tuples (x,y,z,color) of each floor
+        graph_list_ordered = [] # list of tuples (x,y,z,color) of each floor ordered by z
+        self.graph.adj.clear() #clear the graph nodes and edges
+
+        for z in range(len(matrix_list)): # put each floor in a bmp image and then convert it to a list of tuples (x,y,z,color)
+            image_path = (f"images/matrix_{z}.bmp")
+            matrix_to_bmp(matrix_list[z], image_path, gradient)
+            graph_list.extend((rgb_image_to_list(image_path, z))) 
+            graph_list_ordered.append((rgb_image_to_list(image_path, z)))
             
-        matrix_to_bmp(matrix, self.image_path, gradient) # optional, u can use a image and converts to a matrix or list of lists, like the function under  
-        graph_list = (rgb_image_to_list(self.image_path)) # graph_list is a list of tuples (x,y,color)
-        
-        #clear the graph nodes and edges
-        self.graph.adj.clear()
-        
-        #add the nodes and edges from the graph_list
+        #add the nodes and edges of this floor to the graph
         self.graph.add_nodes_and_edges_from_list(graph_list)    
-        matrix = self.graph.find_short_path_bpm(matrix)
-        matrix_to_bmp(matrix, self.final_image_path, gradient)
-        return matrix
+
+        # add edges between floors
+        self.graph.add_edges_between_floors()
+        
+        path = self.graph.find_short_path_bpm() # find the shortest path in the Graph class.
+        
+        print("[Debug]: Path found: {}".format(len(path)))
+        matrix_list = [] # clear the matrix list
+        
+        for i in range(len(graph_list_ordered)): # for each floor
+            for j in range(len(graph_list_ordered[i])):
+                if graph_list_ordered[i][j] in path:
+                    graph_list_ordered[i][j] = (graph_list_ordered[i][j][0], graph_list_ordered[i][j][1], graph_list_ordered[i][j][2], "yellow")
+            
+        for i in range(len(graph_list_ordered)):
+            matrix = tuples_to_matrix(graph_list_ordered[i]) # convert the list of tuples (x,y,z,color) to a matrix
+            matrix_list.append(matrix) # add the matrix to the matrix list
+
+        return matrix_list  # return the matrix list
     
     def return_matrix_of_image(self, image_path:str) -> list:
         """Given a image path, convert it to  tuples (x,y,color) and then to a matrix List[List[int]]"""
             
-        graph_list = (rgb_image_to_list(image_path))
+        graph_list = (rgb_image_to_list(image_path, 0))
         
         return tuples_to_matrix(graph_list)
     
@@ -48,7 +66,7 @@ class Bitmap:
 
 
 def tuples_to_matrix(dataset):
-    """Given a list of tuples (x,y,color) convert it to a matrix List[List[int]]"""
+    """Given a list of tuples (x,y,z,color) convert it to a matrix List[List[int]]"""
     nodes = set()
     for node_tuple in dataset:
         nodes.add(node_tuple[:2])
@@ -58,7 +76,7 @@ def tuples_to_matrix(dataset):
     
     matrix = [[0] * (max_x + 1) for _ in range(max_y + 1)]
 
-    for x, y, color in dataset:
+    for x, y, z, color in dataset:
         if color == 'white':
             matrix[y][x] = 0
         elif color == 'black':
@@ -131,7 +149,7 @@ def matrix_to_bmp(matrix: list, image_path: str, gradient) -> None:
     img.save(image_path)
 
 
-def rgb_image_to_list(image_path: str) -> list[tuple[int, int, str]]:
+def rgb_image_to_list(image_path: str, z: int) -> list[tuple[int, int, str]]:
     """
     Recieved a bpm image, convert its to a categorized list of tuples (x,y,color)
     """
@@ -161,7 +179,7 @@ def rgb_image_to_list(image_path: str) -> list[tuple[int, int, str]]:
             else:
                 color = "unknown"
 
-            categorized_pixel_list.append((x, y, color))
+            categorized_pixel_list.append((x, y, z, color))
 
     return categorized_pixel_list
 

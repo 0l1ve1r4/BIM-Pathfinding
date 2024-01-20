@@ -4,7 +4,8 @@
       "colors": ["white", "black", "red", "green", "darkgray", "lightgray", "yellow"],
       "default_color": "white",
       "gradient": true,
-      "title": "BIM PATHFINDING"
+      "title": "BIM PATHFINDING",
+      "icon": "images/icon.ico"
     },
     "matrix": [
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -22,7 +23,8 @@
     "graph_config":{
       "white_weight": 1,
       "lightgray_weight": 2,
-      "darkgray_weight": 4
+      "darkgray_weight": 4,
+      "between_floors_weight": 1
 
 
     }

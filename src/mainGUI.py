@@ -30,6 +30,7 @@ class MatrixGUI:
         self.SQUARE_SIZE = config_data["config"]["SQUARE_SIZE"]
         self.colors = config_data["config"]["colors"]
         self.root.title(config_data["config"]["title"])
+        root.iconbitmap(config_data["config"]["icon"])
         self.gradient = config_data["config"]["gradient"]
 
         self.floor_canvases = []  # Store canvases for each floor
@@ -143,12 +144,7 @@ class MatrixGUI:
 
         # Update the buttons position
         self.update_buttons_position()
-        
-        for i in range(len(self.all_matrix)):
-            print("Matrix: ", i+1)
-            for j in range(len(self.all_matrix[i])):
-                print(self.all_matrix[i][j])
-        
+
         if self.floor_warnings == 0:
             self.floor_warnings += 1
             new_floor_warning()
@@ -180,6 +176,9 @@ class MatrixGUI:
             messagebox.showerror("Invalid Color", f"Invalid color: {new_color}")
 
     def update_square_color(self, event: tk) -> None:
+        if len(self.all_matrix) > 1:
+            messagebox.showerror("Invalid Action", "You can't change the color of a square when there are multiple floors")
+            return
         x, y = event.x, event.y
         col_index, row_index = x // self.SQUARE_SIZE, y // self.SQUARE_SIZE
 
@@ -190,6 +189,9 @@ class MatrixGUI:
             self.draw_matrix(update_speed=0)
 
     def delete_square(self, event: tk) -> None:
+        if len(self.all_matrix) > 1:
+            messagebox.showerror("Invalid Action", "You can't delete a square when there are multiple floors")
+            return
         x, y = event.x, event.y
         col_index, row_index = x // self.SQUARE_SIZE, y // self.SQUARE_SIZE
 
@@ -205,8 +207,19 @@ class MatrixGUI:
         self.draw_matrix(update_speed=1)
 
     def get_matrix(self) -> None:
-        self.matrix = self.intermediate_class.return_matrix(self.matrix, self.gradient)
-        self.draw_matrix(update_speed=2)
+        updated_canvases = []
+        self.all_matrix = self.intermediate_class.return_matrix(self.all_matrix, self.gradient)
+        
+        for i, matrix in enumerate(self.all_matrix):
+            new_canvas = tk.Canvas(self.root, width=self.SQUARE_SIZE * len(matrix[0]),
+                                height=self.SQUARE_SIZE * len(matrix), bg="#f0f0f0", borderwidth=0, highlightthickness=0)
+            new_canvas.grid(row=0, column=self.last_col_index + i, rowspan=self.rows, padx=10, pady=10)
+            self.draw_matrix(floor_index=i, matrix=matrix, update_speed=0)
+            updated_canvases.append(new_canvas)
+
+        # Replace the old canvases with the updated ones
+        self.floor_canvases = updated_canvases
+                    
 
     # ==============================================================================
     # Main Rendering Function

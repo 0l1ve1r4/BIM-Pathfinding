@@ -55,23 +55,8 @@ class Graph:
     self.add_node(v)
     self.adj[u][v] = weight
     self.num_edges += 1
-
-  def add_undirected_edge(self, u, v, weight):
-    """
-    Add a two-way (undirected) edge between nodes 'u' and 'v' with the specified weight.
-
-    Parameters:
-    - u: One of the nodes.
-    - v: The other node.
-    - weight: The weight of the undirected edge.
-
-    This function calls the 'add_edge' function for both (u, v) and (v, u) to represent the undirected edge.
-    """
-    self.add_directed_edge(u, v, weight)
-    self.add_directed_edge(v, u, weight)
-    
-    
-  def find_short_path_bpm(self,matrix, dijkstra=True) -> list:
+ 
+  def find_short_path_bpm(self, dijkstra=True) -> list:
     """
     Using dijkstra algorithm or bfs, find the shortest path in the Graph class.
     
@@ -84,23 +69,17 @@ class Graph:
     paths = []
     if dijkstra:
       if len(self.end) > 5:
-         print("Too many end nodes, this may take a while") # thats why optimization is a needed workplace
+         print("[Warning]: Too many end nodes, may take a while.") # optimization needed
       while self.end != []:
         end = self.end.pop()
         paths.append(self.dijkstra(self.start, end))
-
+        
     shortest_path = None
     for path in paths:
       if shortest_path is None or len(path) < len(shortest_path):
         shortest_path = path
-
-    for i in range(len(shortest_path)):
-        x = shortest_path[i][0]
-        y = shortest_path[i][1]
-        if shortest_path[i][2] != 'red' and shortest_path[i][2] != 'green':
-            matrix[y][x] = 6
     
-    return matrix
+    return path
             
     
   def add_nodes_and_edges_from_list(self, nodes_list):
@@ -114,12 +93,12 @@ class Graph:
     for i in range(len(nodes_list)):
         for j in range(len(nodes_list)):
             if i != j:
-                x1, y1, color1 = nodes_list[i]
-                x2, y2, color2 = nodes_list[j]
+                x1, y1, z1, color1 = nodes_list[i]
+                x2, y2, z2, color2 = nodes_list[j]
 
                 if color1 != "black" and color2 != "black":
-                    node1 = (x1, y1, color1)
-                    node2 = (x2, y2, color2)
+                    node1 = (x1, y1, z1, color1)
+                    node2 = (x2, y2, z2, color2)
 
                     if color1 == "red":
                         self.start = node1
@@ -139,8 +118,18 @@ class Graph:
 
                         self.add_directed_edge(node1, node2, weight)
 
-
-
+  def add_edges_between_floors(self):
+    nodes_added = []
+    for node1, neighbors in self.adj.items():
+        x1, y1, z1, color1 = node1
+        if z1 == 1 or z1 == -1:  # Check if Z coordinate is one unit above or below
+            for node2 in neighbors:
+                x2, y2, z2, color2 = node2
+                if z2 == z1 + 1 or z2 == z1 - 1:  # Check if Z coordinate is one unit above or below
+                    weight = neighbors[node2]
+                    self.add_directed_edge(node1, node2, weight)
+                    nodes_added.append((node1, node2))
+    print(f"[Debug]: Added {len(nodes_added)} edges between floors")
 
   def dijkstra(self, start, end):
     """Dijkstra algorithm implementation."""
@@ -176,7 +165,7 @@ class Graph:
         current_node = predecessors[current_node]
         
     if path[-1] != end and path[0] != start:
-        print("No path found")
+        print("[Warning]: No path found")
         return []
 
     return path

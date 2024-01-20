@@ -61,7 +61,7 @@ def new_floor_warning():
     title = "Warning"
     explanation_text = (
     "Adding a new floor and drawing may occurs bugs.\n\n"
-    "Please, use just only ONE bitmap if you want to draw...\n\n"
+    "These function will be disable when you have more than one floor.\n\n"
     )   
     app = HelpGUI(root, explanation_text, title, animation_speed=0)
     root.mainloop()
