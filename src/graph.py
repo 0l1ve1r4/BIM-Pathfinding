@@ -1,5 +1,6 @@
 from typing import Any, List, Tuple
 from collections import deque
+from utils import *
 import json
 
 class Graph:
@@ -69,7 +70,7 @@ class Graph:
     paths = []
     if dijkstra:
       if len(self.end) > 5:
-         print("[Warning]: Too many end nodes, may take a while.") # optimization needed
+         debug("Too many end nodes, may take a while.", "warning")
       while self.end != []:
         end = self.end.pop()
         paths.append(self.dijkstra(self.start, end))
@@ -129,7 +130,7 @@ class Graph:
                     weight = neighbors[node2]
                     self.add_directed_edge(node1, node2, self.config_data["graph_config"]["between_floors_weight"])
                     nodes_added.append((node1, node2))
-    print(f"[Debug]: Added {len(nodes_added)} edges between floors")
+    debug("Added {} edges between floors".format(len(nodes_added)), "debug")
 
   def dijkstra(self, start, end):
     """Dijkstra algorithm implementation."""
@@ -165,7 +166,7 @@ class Graph:
         current_node = predecessors[current_node]
         
     if path[-1] != end and path[0] != start:
-        print("[Warning]: No path found")
+        debug("No path found", "warning")
         return [], 0
 
     # Calculate the sum of weights along the path

@@ -4,7 +4,7 @@
       "colors": ["white", "black", "red", "green", "darkgray", "lightgray", "yellow"],
       "default_color": "white",
       "gradient": true,
-      "title": "BIM PATHFINDING",
+      "title": "Bim Pathfinding 2D/3D Visualizer",
       "icon": "images/icon.ico"
     },
     "matrix": [

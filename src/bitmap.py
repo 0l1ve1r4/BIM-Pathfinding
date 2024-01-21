@@ -37,8 +37,7 @@ class Bitmap:
         self.graph.add_edges_between_floors()
         
         path = self.graph.find_short_path_bpm() # find the shortest path in the Graph class.
-        
-        print("[Debug]: Path found: {} nodes".format(len(path)))
+        debug("Path found: {} nodes".format(len(path)), "debug")
         matrix_list = [] # clear the matrix list
                 
         for i in range(len(graph_list_ordered)): # for each floor

@@ -1,7 +1,7 @@
 import tkinter as tk
 
 class HelpGUI:
-    def __init__(self, root, text, title, animation_speed=20):
+    def __init__(self, root, text, title, animation_speed=20, auto_destroy = False):
         self.root = root
         self.root.title(title)
         self.animation_speed = animation_speed
@@ -14,6 +14,9 @@ class HelpGUI:
 
         # Start the animation
         self.animate_text()
+        
+        if auto_destroy:
+            self.root.after(2500, root.destroy)
 
     def animate_text(self):
         self.index = 0
@@ -70,5 +73,5 @@ def loading_window():
     root = tk.Tk()
     title = "Thread"
     text = "Loading djisktra algorithm in another thread, please wait..."
-    app = HelpGUI(root, text, title, animation_speed=0)
+    app = HelpGUI(root, text, title, animation_speed=0, auto_destroy=True)
     root.mainloop()
