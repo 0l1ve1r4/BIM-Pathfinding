@@ -13,7 +13,7 @@ import os
 if __name__ == "__main__":
     
     print("\033[H\033[J")
-    print(f"Running on {os.system('pwd')}")
+    print(f"[Debug]: Running on {os.system('pwd')}")
     matrix_path = "./Datasets/toyFloors/toy_0.bmp" # default image
 
     root = tk.Tk()

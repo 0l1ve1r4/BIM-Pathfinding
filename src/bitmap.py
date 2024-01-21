@@ -38,17 +38,19 @@ class Bitmap:
         
         path = self.graph.find_short_path_bpm() # find the shortest path in the Graph class.
         
-        print("[Debug]: Path found: {}".format(len(path)))
+        print("[Debug]: Path found: {} nodes".format(len(path)))
         matrix_list = [] # clear the matrix list
-        
+                
         for i in range(len(graph_list_ordered)): # for each floor
             for j in range(len(graph_list_ordered[i])):
-                if graph_list_ordered[i][j] in path:
+                if graph_list_ordered[i][j] in path and graph_list_ordered[i][j][3] != "red" and graph_list_ordered[i][j][3] != "green":
                     graph_list_ordered[i][j] = (graph_list_ordered[i][j][0], graph_list_ordered[i][j][1], graph_list_ordered[i][j][2], "yellow")
             
         for i in range(len(graph_list_ordered)):
             matrix = tuples_to_matrix(graph_list_ordered[i]) # convert the list of tuples (x,y,z,color) to a matrix
             matrix_list.append(matrix) # add the matrix to the matrix list
+            
+        matrix_list.append([[]]) # add a empty matrix to the matrix list 
 
         return matrix_list  # return the matrix list
     
@@ -59,12 +61,6 @@ class Bitmap:
         
         return tuples_to_matrix(graph_list)
     
-
-    def add_floor(self, matrix:list) -> list:
-        """Given a matrix, add a floor to it"""
-        print("Test")
-
-
 def tuples_to_matrix(dataset):
     """Given a list of tuples (x,y,z,color) convert it to a matrix List[List[int]]"""
     nodes = set()

@@ -81,6 +81,7 @@ class MatrixGUI:
         self.clear_matrix_button = tk.Button(self.root, text="Clear Bitmap", command=self.del_path, **button_style)
         self.explanation_button = tk.Button(self.root, text="Help/Ajuda", command=open_explanation_window, **button_style)
         self.new_floor_button = tk.Button(self.root, text="Add new Floor", command=self.add_new_floor, **button_style)
+        self.pop_floor_button = tk.Button(self.root, text="Remove Floor", command=self.pop_floor, **button_style)
 
         self.gradient_button = tk.Button(self.root, text="Gradient ON", command=self.toggle_gradient,
                                         bg="#4caf50" if self.gradient else "#f44336", fg="white",
@@ -98,6 +99,7 @@ class MatrixGUI:
         self.gradient_button.grid(row=self.rows + 3, column=middle_column + 3, padx=10, pady=10)
         self.explanation_button.grid(row=self.rows + 3, column=middle_column + 4, padx=10, pady=10)
         self.new_floor_button.grid(row=self.rows + 3, column=middle_column + 5, padx=10, pady=10)
+        self.pop_floor_button.grid(row=self.rows + 3, column=middle_column + 6, padx=10, pady=10)
 
     def destroy_buttons(self):
         self.get_path_button.destroy()
@@ -106,6 +108,7 @@ class MatrixGUI:
         self.gradient_button.destroy()
         self.explanation_button.destroy()
         self.new_floor_button.destroy()
+        self.pop_floor_button.destroy()
 
     def update_buttons_position(self):
         middle_column = (self.last_col_index + 1) // 2 if self.last_col_index > 0 else 0
@@ -116,15 +119,27 @@ class MatrixGUI:
         self.gradient_button.grid(row=self.rows + 4, column=middle_column + 2, padx=10, pady=10)
         self.explanation_button.grid(row=self.rows + 3, column=middle_column + 3, padx=10, pady=10)
         self.new_floor_button.grid(row=self.rows + 4, column=middle_column + 3, padx=10, pady=10)
+        self.pop_floor_button.grid(row=self.rows + 3, column=middle_column + 4, padx=10, pady=10)
     
     # ==============================================================================
     # Buttons Functions
     # ==============================================================================
 
+    def pop_floor(self) -> None:
+        if len(self.floor_canvases) > 1:
+            self.floor_canvases[-1].destroy()
+            self.floor_canvases.pop()
+            self.all_matrix.pop()
+            self.last_col_index -= 1
+            self.destroy_buttons()
+            self.setup_commands()
+            self.update_buttons_position()
+        else:
+            messagebox.showerror("Invalid Action", "You can't delete the only floor")
+    
     def add_new_floor(self) -> None:
         floor_path = self.open_file_explorer(floor=True)
         matrix_floor = self.intermediate_class.return_matrix_of_image(floor_path)
-        self.intermediate_class.add_floor(floor_path)
         self.all_matrix.append(matrix_floor)
 
         # Increment the last column index
@@ -152,13 +167,13 @@ class MatrixGUI:
 
     def toggle_gradient(self) -> None:
         self.gradient = not self.gradient
-        print(f'Gradient toggled: {self.gradient}')
+        print(f'[Debug]: Gradient toggled: {self.gradient}')
         self.gradient_button.config(bg="#4caf50" if self.gradient else "#f44336")
         self.gradient_button.config(text="Gradient ON" if self.gradient else "Gradient OFF")
 
     def open_file_explorer(self, floor=False) -> str:
         file_path = filedialog.askopenfilename()
-        print(f'File path: {file_path}')
+        print(f'[Debug]: File opened: {file_path}')
         if file_path and not floor:
             self.root.destroy()
             root = tk.Tk()
@@ -209,6 +224,13 @@ class MatrixGUI:
     def get_matrix(self) -> None:
         updated_canvases = []
         self.all_matrix = self.intermediate_class.return_matrix(self.all_matrix, self.gradient)
+        
+        if len(self.all_matrix) == 1:
+            self.matrix = self.all_matrix[0]
+            self.draw_matrix(update_speed=1)
+            return
+            
+        
         
         for i, matrix in enumerate(self.all_matrix):
             new_canvas = tk.Canvas(self.root, width=self.SQUARE_SIZE * len(matrix[0]),
