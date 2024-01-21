@@ -1,6 +1,12 @@
-# Project Name
+# Pathfinding Algorithm GUI
 
-A brief description of the project.
+This is the main graphical user interface (GUI) for a pathfinding algorithm. It allows users to interactively visualize and manipulate a matrix representing a floor plan or grid.
+
+## Features
+
+- **Matrix Configuration:** Default values for the matrix are stored in the `config.json` file.
+
+- **Author:** Guilherme Santos
 
 ## Table of Contents
 
@@ -11,16 +17,34 @@ A brief description of the project.
 
 ## Installation
 
-Instructions on how to install and set up the project.
+1. Install the required dependencies:
+
+```bash
+pip install tkinter
+```
 
 ## Usage
 
-Instructions on how to use the project and any relevant examples.
+1. Run the main script:
+
+```bash
+python ./src/main.py
+```
+
+- Left-click on the canvas to update the color of a square.
+- Right-click on the canvas to delete a square.
+
+### Buttons are available for:
+- Running Dijkstra;
+- Loading a new image; 
+- Clearing the bitmap;
+- toggling gradient; 
+- Displaying help;
+- Adding a new floor;
+- Removing a floor; 
+- Clearing the path.
 
 ## Contributing
 
-Guidelines on how to contribute to the project and any code of conduct.
+Contributions are welcome! 
 
-## License
-
-Information about the project's license and any additional terms.

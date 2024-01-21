@@ -148,26 +148,23 @@ class MatrixGUI:
         matrix_floor = self.intermediate_class.return_matrix_of_image(floor_path)
         self.all_matrix.append(matrix_floor)
 
-        # Increment the last column index
-        self.last_col_index += 1
+        self.last_col_index += 1    # Increment the last column index
 
         # Create a new canvas for the new matrix
         new_canvas = tk.Canvas(self.root, width=self.SQUARE_SIZE * len(matrix_floor[0]),
                             height=self.SQUARE_SIZE * len(matrix_floor), bg="#f0f0f0", borderwidth=0, highlightthickness=0)
         new_canvas.grid(row=0, column=self.last_col_index, rowspan=self.rows, padx=10, pady=10)
         self.floor_canvases.append(new_canvas)
-        # Draw the new matrix on the new canvas
+
         debug("Drawing matrix on floor {}".format(len(self.floor_canvases) - 1), "debug")
         self.draw_matrix(floor_index=len(self.floor_canvases) - 1, matrix=matrix_floor, update_speed=0)
 
-        # Destroy and recreate the buttons
+
         self.destroy_buttons()
         self.setup_commands()
-
-        # Update the buttons position
         self.update_buttons_position()
 
-        if self.floor_warnings == 0:
+        if self.floor_warnings == 0:   # Show warning only once
             self.floor_warnings += 1
             new_floor_warning()
             
@@ -197,6 +194,24 @@ class MatrixGUI:
         except ValueError:
             messagebox.showerror("Invalid Color", f"Invalid color: {new_color}")
 
+    def del_matrix(self) -> None:
+        for i in range(len(self.matrix)):
+            for j in range(len(self.matrix[0])):
+                if self.matrix[i][j] >= 0:
+                    self.matrix[i][j] = 0
+        self.draw_matrix(update_speed=1)
+        
+    def del_path(self) -> None:
+        for i in range(len(self.matrix)):
+            for j in range(len(self.matrix[0])):
+                if self.matrix[i][j] == 6:
+                    self.matrix[i][j] = 0
+        self.draw_matrix(update_speed=1)
+    
+    # ==============================================================================
+    # Mouse Functions
+    # ==============================================================================
+
     def update_square_color(self, event: tk) -> None:
         if len(self.all_matrix) > 1:
             messagebox.showerror("Invalid Action", "You can't change the color of a square when there are multiple floors")
@@ -220,20 +235,8 @@ class MatrixGUI:
         if 0 <= row_index < self.rows and 0 <= col_index < self.cols:
             self.matrix[row_index][col_index] = 0
             self.draw_matrix(update_speed=0)
-
-    def del_matrix(self) -> None:
-        for i in range(len(self.matrix)):
-            for j in range(len(self.matrix[0])):
-                if self.matrix[i][j] >= 0:
-                    self.matrix[i][j] = 0
-        self.draw_matrix(update_speed=1)
         
-    def del_path(self) -> None:
-        for i in range(len(self.matrix)):
-            for j in range(len(self.matrix[0])):
-                if self.matrix[i][j] == 6:
-                    self.matrix[i][j] = 0
-        self.draw_matrix(update_speed=1)
+        
 
     # ==============================================================================
     # Main pathfinding function
@@ -251,23 +254,27 @@ class MatrixGUI:
         loading_thread.join()  # Wait for loading_thread to finish
 
 
-        for i, matrix in enumerate(self.all_matrix):
-            if i == 0:
-                self.matrix = self.all_matrix[0]
-                self.draw_matrix(update_speed=1)
-                continue
-            else:
-                new_canvas = tk.Canvas(self.root, width=self.SQUARE_SIZE * len(matrix[0]),
-                                        height=self.SQUARE_SIZE * len(matrix), bg="#f0f0f0", borderwidth=0, highlightthickness=0)
-                new_canvas.grid(row=0, column=self.last_col_index + i, rowspan=self.rows, padx=10, pady=10)
-                updated_canvases.append(new_canvas)
-                self.draw_matrix(floor_index=i, matrix=matrix, update_speed=0)
+        if len(self.all_matrix) == 1:
+            self.matrix = self.all_matrix[0]
+            self.draw_matrix(update_speed=1)
+            return
 
+        else:
+            for i, matrix in enumerate(self.all_matrix):
+                if i == 0:
+                    self.matrix = matrix
+                    self.draw_matrix(update_speed=1)
+                    continue
+                else:
+                    new_canvas = tk.Canvas(self.root, width=self.SQUARE_SIZE * len(matrix[0]),
+                                        height=self.SQUARE_SIZE * len(matrix), bg="#f0f0f0", borderwidth=0, highlightthickness=0)
+                    new_canvas.grid(row=0, column=self.last_col_index + i, rowspan=self.rows, padx=10, pady=10)
+                    updated_canvases.append(new_canvas)
+                    self.draw_matrix(floor_index=i, matrix=matrix, update_speed=0)
             debug("Number of floors: {}".format(len(self.floor_canvases)), "debug")
 
             # Replace the old canvases with the updated ones
             self.floor_canvases = updated_canvases
-            loading_thread.join()  # Wait for loading_thread to finish
                     
 
     # ==============================================================================
