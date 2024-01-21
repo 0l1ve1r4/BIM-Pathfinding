@@ -66,5 +66,9 @@ def new_floor_warning():
     app = HelpGUI(root, explanation_text, title, animation_speed=0)
     root.mainloop()
 
-
-
+def loading_window():
+    root = tk.Tk()
+    title = "Thread"
+    text = "Loading djisktra algorithm in another thread, please wait..."
+    app = HelpGUI(root, text, title, animation_speed=0)
+    root.mainloop()

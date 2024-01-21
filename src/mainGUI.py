@@ -7,6 +7,7 @@
 # ==============================================================================
 
 import tkinter as tk
+import threading
 import json
 
 from tkinter import filedialog, messagebox
@@ -223,15 +224,19 @@ class MatrixGUI:
         self.draw_matrix(update_speed=1)
 
     def get_matrix(self) -> None:
+        # Open loading window in a separate thread
+        loading_thread = threading.Thread(target=loading_window)
+        loading_thread.start()
+
         updated_canvases = []
-        
+
         self.all_matrix = self.intermediate_class.return_matrix(self.all_matrix, self.gradient)
-        
+
         if len(self.all_matrix) == 1:
             self.matrix = self.all_matrix[0]
             self.draw_matrix(update_speed=1)
+            loading_thread.join()  # Wait for loading_thread to finish
             return
-            
         else:
             for i, matrix in enumerate(self.all_matrix):
                 if i == 0:
@@ -244,11 +249,12 @@ class MatrixGUI:
                     new_canvas.grid(row=0, column=self.last_col_index + i, rowspan=self.rows, padx=10, pady=10)
                     updated_canvases.append(new_canvas)
                     self.draw_matrix(floor_index=i, matrix=matrix, update_speed=0)
-            
+
             print(f"[Debug]: Number of floors: {len(self.floor_canvases)}")
 
             # Replace the old canvases with the updated ones
             self.floor_canvases = updated_canvases
+            loading_thread.join()  # Wait for loading_thread to finish
                     
 
     # ==============================================================================
