@@ -74,13 +74,13 @@ class Graph:
         end = self.end.pop()
         paths.append(self.dijkstra(self.start, end))
         
-    shortest_path = None
+    shortest_path = 0
     for path in paths:
-      if shortest_path is None or len(path) < len(shortest_path):
-        shortest_path = path
-    
-    return path
+      if path[1] < shortest_path or shortest_path == 0:
+        shortest_path = path[1]
+        shortest_path_nodes = path[0]
             
+    return shortest_path_nodes
     
   def add_nodes_and_edges_from_list(self, nodes_list):
     """
@@ -127,7 +127,7 @@ class Graph:
                 x2, y2, z2, color2 = node2
                 if z2 == z1 + 1 or z2 == z1 - 1:  # Check if Z coordinate is one unit above or below
                     weight = neighbors[node2]
-                    self.add_directed_edge(node1, node2, weight)
+                    self.add_directed_edge(node1, node2, self.config_data["graph_config"]["between_floors_weight"])
                     nodes_added.append((node1, node2))
     print(f"[Debug]: Added {len(nodes_added)} edges between floors")
 
@@ -166,9 +166,13 @@ class Graph:
         
     if path[-1] != end and path[0] != start:
         print("[Warning]: No path found")
-        return []
+        return [], 0
 
-    return path
+    # Calculate the sum of weights along the path
+    total_weight = sum(self.adj[path[i]][path[i + 1]] for i in range(len(path) - 1))
+
+    return path, total_weight
+
 
 
   

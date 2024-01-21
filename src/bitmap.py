@@ -50,8 +50,6 @@ class Bitmap:
             matrix = tuples_to_matrix(graph_list_ordered[i]) # convert the list of tuples (x,y,z,color) to a matrix
             matrix_list.append(matrix) # add the matrix to the matrix list
             
-        matrix_list.append([[]]) # add a empty matrix to the matrix list 
-
         return matrix_list  # return the matrix list
     
     def return_matrix_of_image(self, image_path:str) -> list:

@@ -151,6 +151,7 @@ class MatrixGUI:
         new_canvas.grid(row=0, column=self.last_col_index, rowspan=self.rows, padx=10, pady=10)
         self.floor_canvases.append(new_canvas)
         # Draw the new matrix on the new canvas
+        print(f'[Debug]: Drawing matrix on floor {len(self.floor_canvases) - 1}')
         self.draw_matrix(floor_index=len(self.floor_canvases) - 1, matrix=matrix_floor, update_speed=0)
 
         # Destroy and recreate the buttons
@@ -223,6 +224,7 @@ class MatrixGUI:
 
     def get_matrix(self) -> None:
         updated_canvases = []
+        
         self.all_matrix = self.intermediate_class.return_matrix(self.all_matrix, self.gradient)
         
         if len(self.all_matrix) == 1:
@@ -230,17 +232,23 @@ class MatrixGUI:
             self.draw_matrix(update_speed=1)
             return
             
-        
-        
-        for i, matrix in enumerate(self.all_matrix):
-            new_canvas = tk.Canvas(self.root, width=self.SQUARE_SIZE * len(matrix[0]),
-                                height=self.SQUARE_SIZE * len(matrix), bg="#f0f0f0", borderwidth=0, highlightthickness=0)
-            new_canvas.grid(row=0, column=self.last_col_index + i, rowspan=self.rows, padx=10, pady=10)
-            self.draw_matrix(floor_index=i, matrix=matrix, update_speed=0)
-            updated_canvases.append(new_canvas)
+        else:
+            for i, matrix in enumerate(self.all_matrix):
+                if i == 0:
+                    self.matrix = matrix
+                    self.draw_matrix(update_speed=1)
+                    continue
+                else:
+                    new_canvas = tk.Canvas(self.root, width=self.SQUARE_SIZE * len(matrix[0]),
+                                        height=self.SQUARE_SIZE * len(matrix), bg="#f0f0f0", borderwidth=0, highlightthickness=0)
+                    new_canvas.grid(row=0, column=self.last_col_index + i, rowspan=self.rows, padx=10, pady=10)
+                    updated_canvases.append(new_canvas)
+                    self.draw_matrix(floor_index=i, matrix=matrix, update_speed=0)
+            
+            print(f"[Debug]: Number of floors: {len(self.floor_canvases)}")
 
-        # Replace the old canvases with the updated ones
-        self.floor_canvases = updated_canvases
+            # Replace the old canvases with the updated ones
+            self.floor_canvases = updated_canvases
                     
 
     # ==============================================================================
