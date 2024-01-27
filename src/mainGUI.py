@@ -81,10 +81,11 @@ class MatrixGUI:
         self.get_path_button = tk.Button(self.root, text="Run Dijkstra", command=self.get_matrix, **button_style)
         self.input_image_button = tk.Button(self.root, text="New Image", command=self.open_file_explorer, **button_style)
         self.clear_matrix_button = tk.Button(self.root, text="Clear Bitmap", command=self.del_matrix, **button_style)
-        self.explanation_button = tk.Button(self.root, text="Help/Ajuda", command=open_explanation_window, **button_style)
+        self.explanation_button = tk.Button(self.root, text="Help 0/", command=open_explanation_window, **button_style)
         self.new_floor_button = tk.Button(self.root, text="Add new Floor", command=self.add_new_floor, **button_style)
         self.pop_floor_button = tk.Button(self.root, text="Remove Floor", command=self.pop_floor, **button_style)
         self.clear_path = tk.Button(self.root, text="Clear Path", command=self.del_path, **button_style)
+        self.save_bitmap_button = tk.Button(self.root, text="Save Bitmap", command=self.save_bitmap, **button_style)
 
         self.gradient_button = tk.Button(self.root, text="Gradient ON", command=self.toggle_gradient,
                                         bg="#4caf50" if self.gradient else "#f44336", fg="white",
@@ -104,6 +105,7 @@ class MatrixGUI:
         self.new_floor_button.grid(row=self.rows + 3, column=middle_column + 5, padx=10, pady=10)
         self.pop_floor_button.grid(row=self.rows + 3, column=middle_column + 6, padx=10, pady=10)
         self.clear_path.grid(row=self.rows + 3, column=middle_column + 7, padx=10, pady=10)
+        self.save_bitmap_button.grid(row=self.rows + 3, column=middle_column + 8, padx=10, pady=10)
 
     def destroy_buttons(self):
         self.get_path_button.destroy()
@@ -114,7 +116,8 @@ class MatrixGUI:
         self.new_floor_button.destroy()
         self.pop_floor_button.destroy()
         self.clear_path.destroy()
-
+        self.save_bitmap_button.destroy()
+        
     def update_buttons_position(self):
         middle_column = (self.last_col_index + 1) // 2 if self.last_col_index > 0 else 0
 
@@ -126,10 +129,14 @@ class MatrixGUI:
         self.new_floor_button.grid(row=self.rows + 4, column=middle_column + 3, padx=10, pady=10)
         self.pop_floor_button.grid(row=self.rows + 3, column=middle_column + 4, padx=10, pady=10)
         self.clear_path.grid(row=self.rows + 4, column=middle_column + 4, padx=10, pady=10)
+        self.save_bitmap_button.grid(row=self.rows + 3, column=middle_column + 5, padx=10, pady=10)
     
     # ==============================================================================
     # Buttons Functions
     # ==============================================================================
+    
+    def save_bitmap(self) -> None:
+        matrix_to_bmp(self.matrix, "./saved_bitmap.bmp", self.gradient)
 
     def pop_floor(self) -> None:
         if len(self.floor_canvases) > 1:
@@ -145,6 +152,9 @@ class MatrixGUI:
     
     def add_new_floor(self) -> None:
         floor_path = self.open_file_explorer(floor=True)
+        if floor_path is None:
+            return
+        
         matrix_floor = self.intermediate_class.return_matrix_of_image(floor_path)
         self.all_matrix.append(matrix_floor)
 
@@ -158,7 +168,6 @@ class MatrixGUI:
 
         debug("Drawing matrix on floor {}".format(len(self.floor_canvases) - 1), "debug")
         self.draw_matrix(floor_index=len(self.floor_canvases) - 1, matrix=matrix_floor, update_speed=0)
-
 
         self.destroy_buttons()
         self.setup_commands()
@@ -176,8 +185,9 @@ class MatrixGUI:
         self.gradient_button.config(text="Gradient ON" if self.gradient else "Gradient OFF")
 
     def open_file_explorer(self, floor=False) -> str:
-        file_path = filedialog.askopenfilename()
-        debug("File opened: {}".format(file_path), "debug")
+
+        file_path = filedialog.askopenfilename(initialdir="./Datasets")
+        debug(f"File opened: {file_path}", "debug")
         if file_path and not floor:
             self.root.destroy()
             root = tk.Tk()
@@ -195,6 +205,10 @@ class MatrixGUI:
             messagebox.showerror("Invalid Color", f"Invalid color: {new_color}")
 
     def del_matrix(self) -> None:
+        if len(self.all_matrix) > 1:
+            messagebox.showerror("Invalid Action", "You can't delete the matrix when there are multiple floors")
+            return
+        
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix[0])):
                 if self.matrix[i][j] >= 0:
@@ -202,6 +216,9 @@ class MatrixGUI:
         self.draw_matrix(update_speed=1)
         
     def del_path(self) -> None:
+        if len(self.all_matrix) > 1:
+            messagebox.showerror("Invalid Action", "You can't delete the path when there are multiple floors")
+            return
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix[0])):
                 if self.matrix[i][j] == 6:
@@ -244,37 +261,34 @@ class MatrixGUI:
 
     def get_matrix(self) -> None:
         # Open loading window in a separate thread
-        loading_thread = threading.Thread(target=loading_window)
+
+        waiting_time = len(self.all_matrix) * 2500
+
+        loading_thread = threading.Thread(target=loading_window, args=(waiting_time,))
         loading_thread.start()
-
-        updated_canvases = []
-
-        self.all_matrix = self.intermediate_class.return_matrix(self.all_matrix, self.gradient)
         
+        self.all_matrix = self.intermediate_class.return_matrix(self.all_matrix, self.gradient)
+            
         loading_thread.join()  # Wait for loading_thread to finish
+            
+
+        for i in range(len(self.all_matrix)):
+            if i == 0:
+                self.matrix = self.all_matrix[i]
+                self.draw_matrix(update_speed=1)
+                if len(self.all_matrix) == 1:
+                    return
+            
+            else:
+                self.floor_canvases[i].destroy()
+                self.floor_canvases[i] = new_canvas = tk.Canvas(self.root, width=self.SQUARE_SIZE * len(self.all_matrix[i][0]),
+                                        height=self.SQUARE_SIZE * len(self.all_matrix[i]), bg="#f0f0f0", borderwidth=0, highlightthickness=0)
+                new_canvas.grid(row=0, column=self.last_col_index + i, rowspan=self.rows, padx=10, pady=10)
+                
+                self.draw_matrix(floor_index=i, matrix=self.all_matrix[i], update_speed=0)
+                
 
 
-        if len(self.all_matrix) == 1:
-            self.matrix = self.all_matrix[0]
-            self.draw_matrix(update_speed=1)
-            return
-
-        else:
-            for i, matrix in enumerate(self.all_matrix):
-                if i == 0:
-                    self.matrix = matrix
-                    self.draw_matrix(update_speed=1)
-                    continue
-                else:
-                    new_canvas = tk.Canvas(self.root, width=self.SQUARE_SIZE * len(matrix[0]),
-                                        height=self.SQUARE_SIZE * len(matrix), bg="#f0f0f0", borderwidth=0, highlightthickness=0)
-                    new_canvas.grid(row=0, column=self.last_col_index + i, rowspan=self.rows, padx=10, pady=10)
-                    updated_canvases.append(new_canvas)
-                    self.draw_matrix(floor_index=i, matrix=matrix, update_speed=0)
-            debug("Number of floors: {}".format(len(self.floor_canvases)), "debug")
-
-            # Replace the old canvases with the updated ones
-            self.floor_canvases = updated_canvases
                     
 
     # ==============================================================================

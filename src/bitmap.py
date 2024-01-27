@@ -22,7 +22,6 @@ class Bitmap:
         
         graph_list = [] # list of tuples (x,y,z,color) of each floor
         graph_list_ordered = [] # list of tuples (x,y,z,color) of each floor ordered by z
-        self.graph.adj.clear() #clear the graph nodes and edges
 
         for z in range(len(matrix_list)): # put each floor in a bmp image and then convert it to a list of tuples (x,y,z,color)
             image_path = (f"images/matrix_{z}.bmp")
@@ -32,14 +31,13 @@ class Bitmap:
             
         #add the nodes and edges of this floor to the graph
         self.graph.add_nodes_and_edges_from_list(graph_list)    
-
-        # add edges between floors
-        self.graph.add_edges_between_floors()
         
         path = self.graph.find_short_path_bpm() # find the shortest path in the Graph class.
         debug("Path found: {} nodes".format(len(path)), "debug")
         matrix_list = [] # clear the matrix list
-                
+        
+        # paint the path in yellow
+        
         for i in range(len(graph_list_ordered)): # for each floor
             for j in range(len(graph_list_ordered[i])):
                 if graph_list_ordered[i][j] in path and graph_list_ordered[i][j][3] != "red" and graph_list_ordered[i][j][3] != "green":

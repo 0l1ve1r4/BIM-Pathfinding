@@ -84,53 +84,41 @@ class Graph:
     return shortest_path_nodes
     
   def add_nodes_and_edges_from_list(self, nodes_list):
-    """
-    Adds nodes and edges to the graph based on a list of tuples representing nodes' positions and colors.
+      for node in nodes_list:
+          x, y, z, color = node
 
-    Parameters:
-        nodes_list (List[Tuple[int, int, str]]): A list of tuples representing nodes' positions (x, y) and colors.
-    """
+          if color == "red":
+              self.start = node
+          elif color == "green" and node not in self.end:
+              self.end.append(node)
 
-    for i in range(len(nodes_list)):
-        for j in range(len(nodes_list)):
-            if i != j:
-                x1, y1, z1, color1 = nodes_list[i]
-                x2, y2, z2, color2 = nodes_list[j]
+          for other_node in nodes_list:
+              if node != other_node:
+                  x2, y2, z2, color2 = other_node
 
-                if color1 != "black" and color2 != "black":
-                    node1 = (x1, y1, z1, color1)
-                    node2 = (x2, y2, z2, color2)
+                  if color2 != "black" and color != "black" and abs(x - x2) <= 1 and abs(y - y2) <= 1 and not (abs(x - x2) == 1 and abs(y - y2) == 1) and z == z2:
+                      weight = 1
 
-                    if color1 == "red":
-                        self.start = node1
-                    elif color1 == "green" and node1 not in self.end:
-                        self.end.append(node1)
+                      if color in ["white", "lightgray", "darkgray"] or color2 in ["white", "lightgray", "darkgray"]:
+                          weight = 1 if color == "white" or color2 == "white" else self.config_data["graph_config"].get(f"{color}_weight", 1)
 
-                    # Check if nodes are adjacent but not diagonal
-                    if (abs(x1 - x2) <= 1 and abs(y1 - y2) <= 1) and not (abs(x1 - x2) == 1 and abs(y1 - y2) == 1):
-                        if color1 == "white" or color2 == "white":
-                            weight = 1
-                        
-                        elif color1 == "lightgray" or color2 == "lightgray":
-                            weight = self.config_data["graph_config"]["lightgray_weight"]
+                      self.add_directed_edge(node, (x2, y2, z2, color2), weight)
 
-                        elif color1 == "darkgray" or color2 == "darkgray":
-                            weight = self.config_data["graph_config"]["darkgray_weight"]
+    # Add edges between floors
 
-                        self.add_directed_edge(node1, node2, weight)
+      nodes = list(self.adj)
 
-  def add_edges_between_floors(self):
-    nodes_added = []
-    for node1, neighbors in self.adj.items():
-        x1, y1, z1, color1 = node1
-        if z1 == 1 or z1 == -1:  # Check if Z coordinate is one unit above or below
-            for node2 in neighbors:
-                x2, y2, z2, color2 = node2
-                if z2 == z1 + 1 or z2 == z1 - 1:  # Check if Z coordinate is one unit above or below
-                    weight = neighbors[node2]
-                    self.add_directed_edge(node1, node2, self.config_data["graph_config"]["between_floors_weight"])
-                    nodes_added.append((node1, node2))
-    debug("Added {} edges between floors".format(len(nodes_added)), "debug")
+      for node1 in nodes:
+        x1, y1, z1, color = node1
+        
+        for node2 in nodes:
+            x2, y2, z2, color2 = node2
+
+            # Add this condition to check if x1, y1, and z1, and x2, y2, and z2 are the same
+            if x1 == x2 and y1 == y2 and abs(z1 - z2) == 1 and color != "green" and color2 != "green":
+                weight = self.config_data["graph_config"].get("between_floors_weight", 1)
+                self.add_directed_edge(node1, node2, weight)
+
 
   def dijkstra(self, start, end):
     """Dijkstra algorithm implementation."""

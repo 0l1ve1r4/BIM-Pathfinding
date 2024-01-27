@@ -1,7 +1,7 @@
 import tkinter as tk
 
 class HelpGUI:
-    def __init__(self, root, text, title, animation_speed=20, auto_destroy = False):
+    def __init__(self, root, text, title, animation_speed=20, auto_destroy = False, waiting_time=0):
         self.root = root
         self.root.title(title)
         self.animation_speed = animation_speed
@@ -16,11 +16,11 @@ class HelpGUI:
         self.animate_text()
         
         if auto_destroy:
-            self.root.after(2500, root.destroy)
+            self.root.after(waiting_time, root.destroy)
 
     def animate_text(self):
         self.index = 0
-        self.root.after(50, self.add_next_character)
+        self.root.after(0, self.add_next_character)
 
     def add_next_character(self):
         if self.index < len(self.explanation_text):
@@ -64,14 +64,15 @@ def new_floor_warning():
     title = "Warning"
     explanation_text = (
     "Adding a new floor and drawing may occurs bugs.\n\n"
-    "These function will be disable when you have more than one floor.\n\n"
+    "Some function will be disable when you have more than one floor.\n\n"
+    "If you want to use these extra functions, please delete the other floors.\n\n"
     )   
     app = HelpGUI(root, explanation_text, title, animation_speed=0)
     root.mainloop()
 
-def loading_window():
+def loading_window(waiting_time):
     root = tk.Tk()
     title = "Thread"
     text = "Loading djisktra algorithm in another thread, please wait..."
-    app = HelpGUI(root, text, title, animation_speed=0, auto_destroy=True)
+    app = HelpGUI(root, text, title, animation_speed=0, auto_destroy=True, waiting_time=waiting_time)
     root.mainloop()
