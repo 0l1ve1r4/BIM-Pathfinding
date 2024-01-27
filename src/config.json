@@ -5,20 +5,9 @@
       "default_color": "white",
       "gradient": true,
       "title": "Bim Pathfinding 2D/3D Visualizer",
-      "icon": "images/icon.ico"
+      "icon": "images/icon.ico",
+      "default_matrix_path": "Datasets/toyLaydown/toy_0.bmp"
     },
-    "matrix": [
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    ],
 
     "graph_config":{
       "white_weight": 1,
@@ -26,8 +15,24 @@
       "darkgray_weight": 4,
       "between_floors_weight": 5
 
+    },
+
+    "GUI_config":{
+
+      "dikjstra_button_text": "Run Dijkstra",
+      "new_image_button_text": "Upload Image",
+      "clear_bitmap_button_text": "Clear Bitmap",
+      "help_button_text": "How to use",
+      "add_floor_button_text": "Add new Floor",
+      "remove_floor_button_text": "Remove last Floor",
+      "clear_path_button_text": "Clear Path Squares",
+      "save_bitmap_button_text": "Save Bitmap",
+      "clear_gradient_button_text": "Clear Gradient"
+
 
     }
+
+
 
   }
   

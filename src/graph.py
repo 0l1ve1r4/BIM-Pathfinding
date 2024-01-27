@@ -1,5 +1,5 @@
-from typing import Any, List, Tuple
-from collections import deque
+from typing import Any, List, Tuple, Dict
+from concurrent.futures import ThreadPoolExecutor
 from utils import *
 import json
 
@@ -58,30 +58,38 @@ class Graph:
     self.num_edges += 1
  
   def find_short_path_bpm(self, dijkstra=True) -> list:
-    """
-    Using dijkstra algorithm or bfs, find the shortest path in the Graph class.
-    
-    the last red bit is the start, and the last green bit is the end.
-
-    Returns:
-    - the nodes path start to end
-
-    """
-    paths = []
-    if dijkstra:
-      if len(self.end) > 5:
-         debug("Too many end nodes, may take a while.", "warning")
-      while self.end != []:
-        end = self.end.pop()
-        paths.append(self.dijkstra(self.start, end))
+        """
+        Using dijkstra algorithm or bfs, find the shortest path in the Graph class.
         
-    shortest_path = 0
-    for path in paths:
-      if path[1] < shortest_path or shortest_path == 0:
-        shortest_path = path[1]
-        shortest_path_nodes = path[0]
-            
-    return shortest_path_nodes
+        the last red bit is the start, and the last green bit is the end.
+
+        Returns:
+        - the nodes path start to end
+
+        """
+        paths = []
+
+        def find_path(batch):
+            return [self.dijkstra(self.start, end) for end in batch]
+
+        if dijkstra:
+            if len(self.end) > 5:
+                debug("Too many end nodes, may take a while.", "warning")
+
+            with ThreadPoolExecutor(max_workers=100) as executor:
+                batch_size = 10  # Adjust the batch size as needed
+                batches = [self.end[i:i + batch_size] for i in range(0, len(self.end), batch_size)]
+                paths = [path for batch_paths in executor.map(find_path, batches) for path in batch_paths]
+
+        shortest_path = float('inf')
+        shortest_path_nodes = []
+
+        for path in paths:
+            if path[1] < shortest_path:
+                shortest_path = path[1]
+                shortest_path_nodes = path[0]
+
+        return shortest_path_nodes
     
   def add_nodes_and_edges_from_list(self, nodes_list):
       for node in nodes_list:
@@ -120,47 +128,46 @@ class Graph:
                 self.add_directed_edge(node1, node2, weight)
 
 
-  def dijkstra(self, start, end):
-    """Dijkstra algorithm implementation."""
-    
-    distances = {node: float('infinity') for node in self.adj}
-    distances[start] = 0
-    visited = set()
-    
-    # Predecessor dictionary to store the previous node in the shortest path
-    predecessors = {node: None for node in self.adj}
-
-    while len(visited) < len(self.adj):
-        # Select the node with the smallest distance that is not visited
-        unvisited_nodes = [node for node in distances if node not in visited]
-        if not unvisited_nodes:
-            break
-
-        current_node = min(unvisited_nodes, key=lambda x: distances[x])
-
-        visited.add(current_node)
-
-        for neighbor, weight in self.adj[current_node].items():
-            distance = distances[current_node] + weight
-
-            if distance < distances.get(neighbor, float('infinity')):
-                distances[neighbor] = distance
-                predecessors[neighbor] = current_node
-
-    path = []
-    current_node = end
-    while current_node is not None:
-        path.insert(0, current_node)
-        current_node = predecessors[current_node]
+  def dijkstra(self, start, end) -> Tuple[List[int], int]:
+        """Dijkstra algorithm implementation."""
         
-    if path[-1] != end and path[0] != start:
-        debug("No path found", "warning")
-        return [], 0
+        distances: Dict[int, float] = {node: float('infinity') for node in self.adj}
+        distances[start] = 0
+        visited: set = set()
+        
+        # Predecessor dictionary to store the previous node in the shortest path
+        predecessors: Dict[int, int] = {node: None for node in self.adj}
 
-    # Calculate the sum of weights along the path
-    total_weight = sum(self.adj[path[i]][path[i + 1]] for i in range(len(path) - 1))
+        while len(visited) < len(self.adj):
+            # Select the node with the smallest distance that is not visited
+            unvisited_nodes = set(distances.keys()) - visited
+            if not unvisited_nodes:
+                break
 
-    return path, total_weight
+            current_node = min(unvisited_nodes, key=distances.get)
+            visited.add(current_node)
+
+            for neighbor, weight in self.adj[current_node].items():
+                distance = distances[current_node] + weight
+
+                if distance < distances[neighbor]:
+                    distances[neighbor] = distance
+                    predecessors[neighbor] = current_node
+
+        path: List[int] = []
+        current_node = end
+        while current_node is not None:
+            path.insert(0, current_node)
+            current_node = predecessors[current_node]
+            
+        if path[-1] != end and path[0] != start:
+            debug("No path found", "warning")
+            return [], 0
+
+        # Calculate the sum of weights along the path
+        total_weight = sum(self.adj[path[i]][path[i + 1]] for i in range(len(path) - 1))
+
+        return path, total_weight
 
 
 

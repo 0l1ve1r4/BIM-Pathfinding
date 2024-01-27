@@ -7,7 +7,6 @@
 # ==============================================================================
 
 import tkinter as tk
-import threading
 import json
 
 from tkinter import filedialog, messagebox
@@ -46,9 +45,13 @@ class MatrixGUI:
         self.last_col_index = self.cols
         self.collum_update = 0
         self.floor_warnings = 0
+        self.config_data = config_data
 
         self.setup_canvas()
         self.setup_commands()
+        
+        warning_window()
+        
 
     # ==============================================================================
     # Setups and Commands
@@ -78,14 +81,15 @@ class MatrixGUI:
             "pady": 6
         }
 
-        self.get_path_button = tk.Button(self.root, text="Run Dijkstra", command=self.get_matrix, **button_style)
-        self.input_image_button = tk.Button(self.root, text="New Image", command=self.open_file_explorer, **button_style)
-        self.clear_matrix_button = tk.Button(self.root, text="Clear Bitmap", command=self.del_matrix, **button_style)
-        self.explanation_button = tk.Button(self.root, text="Help 0/", command=open_explanation_window, **button_style)
-        self.new_floor_button = tk.Button(self.root, text="Add new Floor", command=self.add_new_floor, **button_style)
-        self.pop_floor_button = tk.Button(self.root, text="Remove Floor", command=self.pop_floor, **button_style)
-        self.clear_path = tk.Button(self.root, text="Clear Path", command=self.del_path, **button_style)
-        self.save_bitmap_button = tk.Button(self.root, text="Save Bitmap", command=self.save_bitmap, **button_style)
+        self.get_path_button = tk.Button(self.root, text=self.config_data["GUI_config"]["dikjstra_button_text"], command=self.get_matrix, **button_style)
+        self.input_image_button = tk.Button(self.root, text=self.config_data["GUI_config"]["new_image_button_text"], command=self.open_file_explorer, **button_style)
+        self.clear_matrix_button = tk.Button(self.root, text=self.config_data["GUI_config"]["clear_bitmap_button_text"], command=self.del_matrix, **button_style)
+        self.explanation_button = tk.Button(self.root, text=self.config_data["GUI_config"]["help_button_text"], command=open_explanation_window, **button_style)
+        self.new_floor_button = tk.Button(self.root, text=self.config_data["GUI_config"]["add_floor_button_text"], command=self.add_new_floor, **button_style)
+        self.pop_floor_button = tk.Button(self.root, text=self.config_data["GUI_config"]["remove_floor_button_text"], command=self.pop_floor, **button_style)
+        self.clear_path = tk.Button(self.root, text=self.config_data["GUI_config"]["clear_path_button_text"], command=self.del_path, **button_style)
+        self.save_bitmap_button = tk.Button(self.root, text=self.config_data["GUI_config"]["save_bitmap_button_text"], command=self.save_bitmap, **button_style)
+        self.clear_gradient_button = tk.Button(self.root, text=self.config_data["GUI_config"]["clear_gradient_button_text"], command=self.clear_gradient, **button_style)
 
         self.gradient_button = tk.Button(self.root, text="Gradient ON", command=self.toggle_gradient,
                                         bg="#4caf50" if self.gradient else "#f44336", fg="white",
@@ -106,6 +110,7 @@ class MatrixGUI:
         self.pop_floor_button.grid(row=self.rows + 3, column=middle_column + 6, padx=10, pady=10)
         self.clear_path.grid(row=self.rows + 3, column=middle_column + 7, padx=10, pady=10)
         self.save_bitmap_button.grid(row=self.rows + 3, column=middle_column + 8, padx=10, pady=10)
+        self.clear_gradient_button.grid(row=self.rows + 3, column=middle_column + 9, padx=10, pady=10)
 
     def destroy_buttons(self):
         self.get_path_button.destroy()
@@ -117,24 +122,36 @@ class MatrixGUI:
         self.pop_floor_button.destroy()
         self.clear_path.destroy()
         self.save_bitmap_button.destroy()
+        self.clear_gradient_button.destroy()
         
     def update_buttons_position(self):
         middle_column = (self.last_col_index + 1) // 2 if self.last_col_index > 0 else 0
 
-        self.get_path_button.grid(row=self.rows + 3, column=middle_column, padx=10, pady=10)
-        self.input_image_button.grid(row=self.rows + 4, column=middle_column, padx=10, pady=10)
-        self.clear_matrix_button.grid(row=self.rows + 3, column=middle_column + 2, padx=10, pady=10)
-        self.gradient_button.grid(row=self.rows + 4, column=middle_column + 2, padx=10, pady=10)
-        self.explanation_button.grid(row=self.rows + 3, column=middle_column + 3, padx=10, pady=10)
-        self.new_floor_button.grid(row=self.rows + 4, column=middle_column + 3, padx=10, pady=10)
-        self.pop_floor_button.grid(row=self.rows + 3, column=middle_column + 4, padx=10, pady=10)
-        self.clear_path.grid(row=self.rows + 4, column=middle_column + 4, padx=10, pady=10)
-        self.save_bitmap_button.grid(row=self.rows + 3, column=middle_column + 5, padx=10, pady=10)
+        # Group 0: Especial-related buttons
+        self.gradient_button.grid(row=self.rows + 1, column=middle_column - 1, padx=10, pady=10)
+
+        # Group 1: Clear-related buttons
+        self.clear_matrix_button.grid(row=self.rows + 1, column=middle_column, padx=10, pady=10)
+        self.clear_gradient_button.grid(row=self.rows + 2, column=middle_column, padx=10, pady=10)
+        self.clear_path.grid(row=self.rows + 3, column=middle_column, padx=10, pady=10)
+
+        # Group 2: Floor-related buttons
+        self.explanation_button.grid(row=self.rows + 1, column=middle_column + 1, padx=10, pady=10)
+        self.new_floor_button.grid(row=self.rows + 2, column=middle_column + 1, padx=10, pady=10)
+        self.pop_floor_button.grid(row=self.rows + 3, column=middle_column + 1, padx=10, pady=10)
+
+        # Group 3: Rest of them
+        self.get_path_button.grid(row=self.rows + 1, column=middle_column + 2, padx=10, pady=10)
+        self.input_image_button.grid(row=self.rows + 2, column=middle_column + 2, padx=10, pady=10)
+        self.save_bitmap_button.grid(row=self.rows + 3, column=middle_column + 2, padx=10, pady=10)
+
+
+
     
     # ==============================================================================
     # Buttons Functions
     # ==============================================================================
-    
+
     def save_bitmap(self) -> None:
         matrix_to_bmp(self.matrix, "./saved_bitmap.bmp", self.gradient)
 
@@ -224,6 +241,17 @@ class MatrixGUI:
                 if self.matrix[i][j] == 6:
                     self.matrix[i][j] = 0
         self.draw_matrix(update_speed=1)
+        
+    def clear_gradient(self) -> None:
+        if len(self.all_matrix) > 1:
+            messagebox.showerror("Invalid Action", "You can't delete the path when there are multiple floors")
+            return
+        for i in range(len(self.matrix)):
+            for j in range(len(self.matrix[0])):
+                if self.matrix[i][j] == 4 or self.matrix[i][j] == 5:
+                    self.matrix[i][j] = 0
+        self.draw_matrix(update_speed=1)
+        
     
     # ==============================================================================
     # Mouse Functions
@@ -262,14 +290,9 @@ class MatrixGUI:
     def get_matrix(self) -> None:
         # Open loading window in a separate thread
 
-        waiting_time = len(self.all_matrix) * 2500
-
-        loading_thread = threading.Thread(target=loading_window, args=(waiting_time,))
-        loading_thread.start()
-        
         self.all_matrix = self.intermediate_class.return_matrix(self.all_matrix, self.gradient)
             
-        loading_thread.join()  # Wait for loading_thread to finish
+
             
 
         for i in range(len(self.all_matrix)):
