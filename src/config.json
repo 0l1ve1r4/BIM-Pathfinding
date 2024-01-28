@@ -6,7 +6,7 @@
       "gradient": true,
       "title": "Bim Pathfinding 2D/3D Visualizer",
       "icon": "images/icon.ico",
-      "default_matrix_path": "Datasets/toyLaydown/toy_0.bmp"
+      "default_matrix_path": "Datasets/toyGrey/toy_0.bmp"
     },
 
     "graph_config":{
@@ -27,7 +27,8 @@
       "remove_floor_button_text": "Remove last Floor",
       "clear_path_button_text": "Clear Path Squares",
       "save_bitmap_button_text": "Save Bitmap",
-      "clear_gradient_button_text": "Clear Gradient"
+      "clear_gradient_button_text": "Clear Gradient",
+      "3D_button_text": "3D View"
 
 
     }

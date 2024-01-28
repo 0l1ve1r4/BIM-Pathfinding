@@ -9,10 +9,12 @@
 import tkinter as tk
 import json
 
+from concurrent.futures import ThreadPoolExecutor
 from tkinter import filedialog, messagebox
 from bitmap import *
 from utilsGUI import *
 from utils import *
+from renderer3D import *
 
 class MatrixGUI:
 
@@ -50,7 +52,7 @@ class MatrixGUI:
         self.setup_canvas()
         self.setup_commands()
         
-        warning_window()
+        #warning_window()
         
 
     # ==============================================================================
@@ -90,10 +92,12 @@ class MatrixGUI:
         self.clear_path = tk.Button(self.root, text=self.config_data["GUI_config"]["clear_path_button_text"], command=self.del_path, **button_style)
         self.save_bitmap_button = tk.Button(self.root, text=self.config_data["GUI_config"]["save_bitmap_button_text"], command=self.save_bitmap, **button_style)
         self.clear_gradient_button = tk.Button(self.root, text=self.config_data["GUI_config"]["clear_gradient_button_text"], command=self.clear_gradient, **button_style)
+        self.button3D = tk.Button(self.root, text=self.config_data["GUI_config"]["3D_button_text"], command=self.show_3D, **button_style)
 
         self.gradient_button = tk.Button(self.root, text="Gradient ON", command=self.toggle_gradient,
                                         bg="#4caf50" if self.gradient else "#f44336", fg="white",
                                         font=("Helvetica", 12), padx=10, pady=5)
+
 
 
         self.update_buttons_position()
@@ -111,6 +115,7 @@ class MatrixGUI:
         self.clear_path.grid(row=self.rows + 3, column=middle_column + 7, padx=10, pady=10)
         self.save_bitmap_button.grid(row=self.rows + 3, column=middle_column + 8, padx=10, pady=10)
         self.clear_gradient_button.grid(row=self.rows + 3, column=middle_column + 9, padx=10, pady=10)
+        self.button3D.grid(row=self.rows + 3, column=middle_column + 10, padx=10, pady=10)
 
     def destroy_buttons(self):
         self.get_path_button.destroy()
@@ -123,12 +128,14 @@ class MatrixGUI:
         self.clear_path.destroy()
         self.save_bitmap_button.destroy()
         self.clear_gradient_button.destroy()
+        self.button3D.destroy()
         
     def update_buttons_position(self):
         middle_column = (self.last_col_index + 1) // 2 if self.last_col_index > 0 else 0
 
         # Group 0: Especial-related buttons
         self.gradient_button.grid(row=self.rows + 1, column=middle_column - 1, padx=10, pady=10)
+        self.button3D.grid(row=self.rows + 2, column=middle_column - 1, padx=10, pady=10)
 
         # Group 1: Clear-related buttons
         self.clear_matrix_button.grid(row=self.rows + 1, column=middle_column, padx=10, pady=10)
@@ -151,6 +158,13 @@ class MatrixGUI:
     # ==============================================================================
     # Buttons Functions
     # ==============================================================================
+
+    def show_3D(self) -> None:
+        
+        with ThreadPoolExecutor(max_workers=100) as executor:
+            executor.map(show_3DPlot, [self.all_matrix])
+            executor.shutdown(wait=True)
+        
 
     def save_bitmap(self) -> None:
         matrix_to_bmp(self.matrix, "./saved_bitmap.bmp", self.gradient)

@@ -69,6 +69,7 @@ def new_floor_warning():
     explanation_text = (
     "Adding a new floor and drawing may occurs bugs due to the grids managment.\n\n"
     "Some function will be disable when you have more than one floor.\n\n"
+    "** 3D STILL WORKS WITH MULTIPLE FLOORS. **\n\n"
     "If you want to use these extra functions, please delete the other floors.\n\n"
     )   
     app = HelpGUI(root, explanation_text, title, animation_speed=0)

@@ -1,11 +1,11 @@
 # ==============================================================================
-# Main file to run the GUI.
+#                       Main file to run the GUI.
 # 
-# If you want to change the default image,
-# check the .json.
+#                       If you want to change the default image,
+#                       check the .json.
 # 
-# But also, you can open a image from your computer,
-# just click in "New Image" button on the GUI.
+#                       But also, you can open a image from your computer,
+#                       just click in "New Image" button on the GUI.
 # ==============================================================================
 
 from mainGUI import *
