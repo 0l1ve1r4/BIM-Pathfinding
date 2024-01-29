@@ -9,11 +9,13 @@
 import tkinter as tk
 import json
 
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.pyplot as plt
 from tkinter import filedialog, messagebox
 from bitmap import *
 from utilsGUI import *
 from utils import *
-from renderer3D import *
+
 
 class MatrixGUI:
 
@@ -21,9 +23,9 @@ class MatrixGUI:
     # Constructor
     # ==============================================================================
 
-    def __init__(self, root, matrix=None, config_file="./src/config.json"):
+    def __init__(self, root, matrix=None, config_file="./src/config.json", os_name="Windows"):
         self.root = root
-
+        self.os_name = os_name
 
         if config_file != None:
             with open(config_file, 'r') as f:
@@ -32,8 +34,11 @@ class MatrixGUI:
         self.SQUARE_SIZE = config_data["config"]["SQUARE_SIZE"]
         self.colors = config_data["config"]["colors"]
         self.root.title(config_data["config"]["title"])
-        root.iconbitmap(config_data["config"]["icon"])
+        if os_name == "Windows":
+            root.iconbitmap(config_data["config"]["icon"])
         self.gradient = config_data["config"]["gradient"]
+        self.boolean3D = False
+        self.filepath = matrix
 
         self.floor_canvases = []  # Store canvases for each floor
         self.all_matrix = []  # Store all matrixes for each floor
@@ -50,6 +55,8 @@ class MatrixGUI:
 
         self.setup_canvas()
         self.setup_commands()
+
+
         
         #warning_window()
         
@@ -91,10 +98,13 @@ class MatrixGUI:
         self.clear_path = tk.Button(self.root, text=self.config_data["GUI_config"]["clear_path_button_text"], command=self.del_path, **button_style)
         self.save_bitmap_button = tk.Button(self.root, text=self.config_data["GUI_config"]["save_bitmap_button_text"], command=self.save_bitmap, **button_style)
         self.clear_gradient_button = tk.Button(self.root, text=self.config_data["GUI_config"]["clear_gradient_button_text"], command=self.clear_gradient, **button_style)
-        self.button3D = tk.Button(self.root, text=self.config_data["GUI_config"]["3D_button_text"], command=self.show_3D, **button_style)
-
+        
         self.gradient_button = tk.Button(self.root, text="Gradient ON", command=self.toggle_gradient,
                                         bg="#4caf50" if self.gradient else "#f44336", fg="white",
+                                        font=("Helvetica", 12), padx=10, pady=5)
+        
+        self.button3D = tk.Button(self.root, text="3D OFF", command=self.show_3D,
+                                        bg="#f44336", fg="white",
                                         font=("Helvetica", 12), padx=10, pady=5)
 
 
@@ -158,8 +168,85 @@ class MatrixGUI:
     # Buttons Functions
     # ==============================================================================
 
-    def show_3D(self) -> None:
-        show_3DPlot(self.all_matrix)
+    def show_2D(self):
+        # Destroy the existing 3D canvas if it exists
+        if hasattr(self, 'canvas_3d'):
+            self.canvas_3d.get_tk_widget().destroy()
+            delattr(self, 'canvas_3d')
+
+            self.root.destroy()
+            root = tk.Tk()
+            app = MatrixGUI(root, self.filepath, os_name=self.os_name)
+            root.mainloop()
+        
+    def show_3D(self):
+        if self.boolean3D:
+            self.show_2D()
+
+        # Set the 3D boolean to True
+        self.boolean3D = True
+        self.button3D.config(bg="#4caf50")
+        self.button3D.config(text="3D ON")
+        matrix = self.all_matrix
+
+        color_mapping = {
+            0: 'white',
+            1: 'black',
+            2: 'red',
+            3: 'green',
+            4: 'darkgray',
+            5: 'lightgray',
+            6: 'yellow'
+        }
+
+        z_mapping = {
+            0: -1.0,
+            1: 0.4,
+            2: 0.3,
+            3: 0.3,
+            4: 0.2,
+            5: 0.2,
+            6: 0.3
+        }
+
+        # Create figure and 3D axis
+        fig = plt.Figure(figsize=(self.cols, self.rows), dpi=30)
+        ax = fig.add_subplot(111, projection='3d')
+
+        # Iterate through the matrix and plot each element
+        for z in range(len(matrix)):
+            if z > 0:
+                z_mapping.update({0: 0.1})
+
+            # Extract matrix dimensions
+            rows = len(matrix[z])
+            cols = len(matrix[z][0])
+
+            for y in range(0, rows):
+                for x in range(0, cols):
+                    color_index = matrix[z][y][x]
+                    if color_index in color_mapping:
+                        color = color_mapping[color_index]
+                        height = z_mapping.get(color_index, 0)
+
+                        ax.bar3d(x, y, z, 1, 1, height, color=color, shade=True)
+
+        # Set axis labels
+        ax.view_init(elev=45, azim=-50)
+
+        # Embed Matplotlib plot in Tkinter canvas
+        new_canvas_widget = FigureCanvasTkAgg(fig, master=self.root)
+        new_canvas_widget.draw()
+
+        # Destroy the current 2D canvas widget, and the floors if they exist
+        if len(self.all_matrix) > 1:
+            for i in range(len(self.all_matrix) - 1):
+                self.pop_floor()
+        self.canvas.destroy()
+
+        # Pack the new canvas widget in the same location using grid and update
+        new_canvas_widget.get_tk_widget().grid(row=0, column=0, columnspan=self.cols, padx=10, pady=10)
+        self.canvas_3d = new_canvas_widget
 
     def save_bitmap(self) -> None:
         matrix_to_bmp(self.matrix, "./saved_bitmap.bmp", self.gradient)
@@ -217,7 +304,7 @@ class MatrixGUI:
         if file_path and not floor:
             self.root.destroy()
             root = tk.Tk()
-            app = MatrixGUI(root, file_path)
+            app = MatrixGUI(root, file_path, os_name=self.os_name)
             root.mainloop()
         return file_path
 
@@ -327,7 +414,7 @@ class MatrixGUI:
     # Main Rendering Function
     # ==============================================================================
 
-    def draw_matrix(self, floor_index=None, matrix=None, update_speed=5) -> None:
+    def draw_matrix(self, floor_index=None, matrix=None, update_speed=5, back2D = False) -> None:
         colors = self.colors
         
         if floor_index is not None:
@@ -359,7 +446,7 @@ class MatrixGUI:
         
         else:
             for canvas in self.floor_canvases:
-                canvas.delete("all")  # Clear all canvases
+                canvas.delete("all")  if not back2D else None
                 i, j = 0, 0
                 while 0 <= i < len(self.matrix):
                     while 0 <= j < len(self.matrix[i]):

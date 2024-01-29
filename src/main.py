@@ -16,11 +16,15 @@ import json
 
 if __name__ == "__main__":
     print("\033[H\033[J")
+    check_and_install_libraries()
     
     run_path = os.getcwd()
     config_file = "src/config.json"
     
-    if not run_path.split("\\")[-1].startswith("BIM-"): 
+    filepath = "\\" if os.name == "nt" else "/"
+    os_name = "Windows" if os.name == "nt" else "Linux"
+
+    if not run_path.split(filepath)[-1].startswith("BIM-"): 
         debug("Run the aplication on the ./BIM-Pathfinding folder", "error")
         exit(1)
     
@@ -32,5 +36,5 @@ if __name__ == "__main__":
             config_data = json.load(f)
 
     root = tk.Tk()
-    app = MatrixGUI(root, config_data["config"]["default_matrix_path"])
+    app = MatrixGUI(root, config_data["config"]["default_matrix_path"], os_name=os_name)
     root.mainloop()
