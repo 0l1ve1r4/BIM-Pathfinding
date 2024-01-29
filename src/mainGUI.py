@@ -9,7 +9,6 @@
 import tkinter as tk
 import json
 
-from concurrent.futures import ThreadPoolExecutor
 from tkinter import filedialog, messagebox
 from bitmap import *
 from utilsGUI import *
@@ -160,11 +159,7 @@ class MatrixGUI:
     # ==============================================================================
 
     def show_3D(self) -> None:
-        
-        with ThreadPoolExecutor(max_workers=100) as executor:
-            executor.map(show_3DPlot, [self.all_matrix])
-            executor.shutdown(wait=True)
-        
+        show_3DPlot(self.all_matrix)
 
     def save_bitmap(self) -> None:
         matrix_to_bmp(self.matrix, "./saved_bitmap.bmp", self.gradient)
