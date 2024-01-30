@@ -1,27 +1,20 @@
 # Pathfinding Algorithm GUI
 
-This is the main graphical user interface (GUI) for a pathfinding algorithm. It allows users to interactively visualize and manipulate a matrix representing a floor plan or grid.
+Welcome to the graphical user interface (GUI) for our advanced pathfinding algorithm. This interface empowers users to dynamically visualize and manipulate a matrix representing a floor plan or grid.
 
-## Features
+## Key Features
 
-- **Matrix Configuration:** Default values for the matrix are stored in the `config.json` file.
-
-- **Author:** Guilherme Santos
+- **Matrix Configuration:** Easily configure the program using default values stored in the `config.json` file.
 
 ## Table of Contents
 
 - [Installation](#installation)
 - [Usage](#usage)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## Installation
 
-1. Install the required dependencies:
-
-```bash
-pip install tkinter
-```
+1. Dependencies are automatically installed for your convenience.
 
 ## Usage
 
@@ -31,20 +24,34 @@ pip install tkinter
 python ./src/main.py
 ```
 
-- Left-click on the canvas to update the color of a square.
-- Right-click on the canvas to delete a square.
+- **Usage:**
 
-### Buttons are available for:
-- Running Dijkstra;
-- Loading a new image; 
-- Clearing the bitmap;
-- toggling gradient; 
-- Displaying help;
-- Adding a new floor;
-- Removing a floor; 
-- Clearing the path.
+  - Left-click on the canvas to update the color of a square.
+  - Right-click on the canvas to delete a square.
 
-## Contributing
+### Interactive Buttons:
 
-Contributions are welcome! 
+- **Run Algorithm in 3D:** Experience the algorithm in a three-dimensional perspective.
+- **Run Dijkstra:** Execute the Dijkstra pathfinding algorithm.
+- **Load New Image:** Import a new image to update the floor plan.
+- **Clear Bitmap:** Remove all elements from the bitmap.
+- **Toggle Gradient:** Switch between gradient modes for enhanced visualization.
+- **Display Help:** Access helpful information about the application.
+- **Add New Floor:** Include a new floor in the floor plan.
+- **Remove Floor:** Eliminate an existing floor from the plan.
+- **Clear Path:** Reset the path on the floor plan.
+- **Save Bitmap:** Save your current configuration for future use.
+
+  ## Contributing
+
+We welcome and appreciate contributions! If you'd like to contribute to the enhancement of this pathfinding algorithm GUI, please follow these guidelines:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Make your changes and ensure that the code is well-documented.
+4. Test your changes thoroughly.
+5. Create a pull request, explaining the purpose of your changes.
+
+
+
 
