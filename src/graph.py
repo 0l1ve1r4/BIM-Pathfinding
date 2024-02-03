@@ -9,7 +9,7 @@ class Graph:
     self.num_nodes = 0
     self.num_edges = 0
     self.adj = {}
-    self.start = ""
+    self.start = []
     self.end = []
 
     if config_file != None:
@@ -68,35 +68,41 @@ class Graph:
 
         """
         paths = []
+        if len(self.end) > 5:
+            debug("Too many end nodes, may take a while.", "warning")
+        
+        if len(self.start) == 1:
+            start = self.start[0]
+            
+            def find_path(batch):
+                return [self.dijkstra(start, end) for end in batch]
 
-        def find_path(batch):
-            return [self.dijkstra(self.start, end) for end in batch]
-
-        if dijkstra:
-            if len(self.end) > 5:
-                debug("Too many end nodes, may take a while.", "warning")
-
-            with ThreadPoolExecutor(max_workers=100) as executor:
-                batch_size = 10  # Adjust the batch size as needed
+            with ThreadPoolExecutor(max_workers=10) as executor:
+                batch_size = 10
                 batches = [self.end[i:i + batch_size] for i in range(0, len(self.end), batch_size)]
                 paths = [path for batch_paths in executor.map(find_path, batches) for path in batch_paths]
 
-        shortest_path = float('inf')
-        shortest_path_nodes = []
+            min_path = min(paths, key=lambda x: x[1])
+            return min_path[0]
+        
+        else:
+            for start in self.start:
+                if start not in self.adj:
+                    debug(f"Start node {start} not in graph", "warning")
+                    continue
+                
+            paths = (self.dijkstra_multiple_pixels(self.start, self.end[0]))
 
-        for path in paths:
-            if path[1] < shortest_path:
-                shortest_path = path[1]
-                shortest_path_nodes = path[0]
 
-        return shortest_path_nodes
+        return paths
+            
     
   def add_nodes_and_edges_from_list(self, nodes_list):
       for node in nodes_list:
           x, y, z, color = node
 
           if color == "red":
-              self.start = node
+              self.start.append(node)
           elif color == "green" and node not in self.end:
               self.end.append(node)
 
@@ -131,6 +137,7 @@ class Graph:
   def dijkstra(self, start, end) -> Tuple[List[int], int]:
         """Dijkstra algorithm implementation."""
         
+        
         distances: Dict[int, float] = {node: float('infinity') for node in self.adj}
         distances[start] = 0
         visited: set = set()
@@ -163,12 +170,75 @@ class Graph:
         if path[-1] != end and path[0] != start:
             debug("No path found", "warning")
             return [], 0
-
-        # Calculate the sum of weights along the path
+          
         total_weight = sum(self.adj[path[i]][path[i + 1]] for i in range(len(path) - 1))
 
         return path, total_weight
+    
+  def dijkstra_multiple_pixels(self, starts, end) -> Dict[Tuple[int, int, int, str], List[int]]:
+    """Dijkstra algorithm implementation."""
+    
+    start = starts[0]
+    distances: Dict[int, float] = {node: float('infinity') for node in self.adj}
+    distances[start] = 0
+    visited: set = set()
+        
+    # Predecessor dictionary to store the previous node in the shortest path
+    predecessors: Dict[int, int] = {node: None for node in self.adj}
+
+    while len(visited) < len(self.adj):
+        # Select the node with the smallest distance that is not visited
+        unvisited_nodes = set(distances.keys()) - visited
+        if not unvisited_nodes:
+            break
+
+        current_node = min(unvisited_nodes, key=distances.get)
+        visited.add(current_node)
+
+        for neighbor, weight in self.adj[current_node].items():
+            distance = distances[current_node] + weight
+
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                predecessors[neighbor] = current_node
+
+        path: List[int] = []
+        current_node = end
+        while current_node is not None:
+            path.insert(0, current_node)
+            current_node = predecessors[current_node]
+
+    all_nodes = list(self.adj)
+
+    len_path = len(path)
+    for start_pixel in starts:
+        if start_pixel != start:
+            start_pixel_path = start_pixel
+            
+            for i in range(1, len_path):
+                # Calculate the direction of movement
+                
+                dx = (path[i][0] - path[i-1][0]) + start_pixel_path[0]
+                dy = (path[i][1] - path[i-1][1]) + start_pixel_path[1]
+                dz = path[i][2] - path[i-1][2] # if dz is changed, just change the other floors
+                
+                # Move the start pixel in the same direction
+                node_neighboor = (dx, dy, dz)
+                
+                # try to find the color of the node_neighboor
+                for node in all_nodes:
+                    if node_neighboor == node[:3]:
+                        node_neighboor = node
+                        start_pixel_path = node_neighboor
+                        path.append(node_neighboor if node_neighboor not in path else path[-1])
+
+    return path
 
 
 
-  
+
+
+
+
+
+

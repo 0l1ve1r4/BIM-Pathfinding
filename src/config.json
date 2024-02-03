@@ -6,7 +6,7 @@
       "gradient": true,
       "title": "Bim Pathfinding 2D/3D Visualizer",
       "icon": "images/icon.ico",
-      "default_matrix_path": "Datasets/toyGrey/toy_0.bmp"
+      "default_matrix_path": "Datasets/saved_bitmap.bmp"
     },
 
     "graph_config":{

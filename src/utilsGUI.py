@@ -1,20 +1,23 @@
 import tkinter as tk
 
+import tkinter as tk
+from tkinter import Label, Button
+
 class HelpGUI:
-    def __init__(self, root, text, title, animation_speed=20, auto_destroy = False, waiting_time=0):
+    def __init__(self, root, text, title, animation_speed=20, auto_destroy=False, waiting_time=0):
         self.root = root
         self.root.title(title)
         self.animation_speed = animation_speed
         self.explanation_text = text
 
-        self.explanation_label = tk.Label(root, text="", justify=tk.LEFT, padx=20, pady=20)
+        self.explanation_label = Label(root, text="", justify=tk.LEFT, padx=20, pady=20)
         self.explanation_label.pack()
 
-        tk.Button(root, text="Close", command=root.destroy, padx=10, pady=5).pack()
+        Button(root, text="Close", command=root.destroy, padx=10, pady=5).pack()
 
         # Start the animation
         self.animate_text()
-        
+
         if auto_destroy:
             self.root.after(waiting_time, root.destroy)
 
@@ -33,33 +36,22 @@ class HelpGUI:
 def open_explanation_window():
     root = tk.Tk()
     title = "Help"
-    
+
     explanation_text = (
-    "This program demonstrates a graphical user interface for managing a grid of squares.\n"
-    "Interaction with the grid is as follows:\n\n"
-    " - Left click on a square to change its color.\n"
-    " - Right click on a square to delete it.\n"
-    " - Click 'Run Dijkstra' to find the shortest path between the start and end nodes.\n"
-    " - Click 'Clear Bitmap' to delete all squares.\n"
-    " - Click 'Upload Image' to input an image and convert it to a matrix.\n"
-    " - Click 'Toggle Gradient' to switch gradient mode where the path is colored based on the weight of the edges sided by black.\n"
-    " - Click 'How to use' to open a window with additional information about the program.\n"
-    " - Click 'Add new Floor' to add a new floor with its own matrix.\n\n"
-    "Este programa demonstra uma interface gráfica para gerenciar uma grade de quadrados.\n"
-    "A interação com a grade é a seguinte:\n\n"
-    " - Clique à esquerda em um quadrado para mudar sua cor.\n"
-    " - Clique à direita em um quadrado para excluí-lo.\n"
-    " - Clique em 'Run Dijkstra' para encontrar o caminho mais curto entre os nós de início e fim.\n"
-    " - Clique em 'Limpar Matriz' para excluir quadrados cinza e amarelos.\n"
-    " - Clique em 'Entrada de Imagem' para inserir uma imagem e convertê-la em uma matriz.\n"
-    " - Clique em 'Alternar Gradiente' para mudar para o modo de gradiente, onde o caminho é colorido com base no peso das arestas ao lado de preto.\n"
-    " - Clique em 'Como usar' para abrir uma janela com informações adicionais sobre o programa.\n"
-    " - Clique em 'Adicionar novo Andar' para adicionar um novo andar com sua própria matriz.\n"
-)
+        "This program demonstrates a graphical user interface for managing a grid of squares.\n"
+        "Interaction with the grid is as follows:\n\n"
+        " - Left click on a square to change its color.\n"
+        " - Right click on a square to delete it.\n"
+        " - Click 'Run Dijkstra' to find the shortest path between the start and end nodes.\n"
+        " - Click 'Clear Bitmap' to delete all squares.\n"
+        " - Click 'Upload Image' to input an image and convert it to a matrix.\n"
+        " - Click 'Toggle Gradient' to switch gradient mode where the path is colored based on the weight of the edges sided by black.\n"
+        " - Click 'How to use' to open a window with additional information about the program.\n"
+        " - Click 'Add new Floor' to add a new floor with its own matrix.\n\n"
+        "\n\n Source code: [GitHub](https://github.com/iyksh/BIM-Pathfinding)"
+    )
 
-
-    
-    app = HelpGUI(root, explanation_text, title, animation_speed=0)
+    HelpGUI(root, explanation_text, title)
     root.mainloop()
 
 

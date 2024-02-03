@@ -24,6 +24,8 @@ class Bitmap:
         graph_list_ordered = [] # list of tuples (x,y,z,color) of each floor ordered by z
         
         self.graph.adj.clear() # clear the graph
+        self.graph.start.clear() # clear the start nodes
+        self.graph.end.clear()
 
         for z in range(len(matrix_list)): # put each floor in a bmp image and then convert it to a list of tuples (x,y,z,color)
             image_path = (f"images/matrix_{z}.bmp")
